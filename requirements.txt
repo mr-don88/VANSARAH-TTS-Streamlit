@@ -1,0 +1,13 @@
+streamlit==1.28.0
+torch==2.1.2
+torchaudio==2.1.2
+numpy==1.26.4
+pydub==0.25.1
+phonemizer==3.2.1
+librosa==0.10.1
+numba==0.58.1
+llvmlite==0.41.1
+pandas==2.2.2
+soundfile==0.12.1
+vansarah==1.0.2
+g2p-en==2.1.0
