@@ -1,5 +1,5 @@
 streamlit==1.28.0
-torch==2.1.2
+torch
 torchaudio==2.1.2
 numpy==1.26.4
 pydub==0.25.1
