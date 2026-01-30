@@ -496,6 +496,18 @@
         .notification.info {
             background: var(--info-color);
         }
+        
+        .test-btn {
+            background: var(--warning-color);
+            color: var(--dark-color);
+            margin-left: 10px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .test-btn:hover {
+            background: #e0a800;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -511,6 +523,9 @@
         <header>
             <h1><i class="fas fa-microphone-alt"></i> Advanced TTS with Multi-Character Dialogue</h1>
             <p>Generate high-quality speech with multiple voices and automatic subtitles</p>
+            <button class="test-btn" id="test-speech">
+                <i class="fas fa-volume-up"></i> Test Speech
+            </button>
         </header>
         
         <div class="main-card">
@@ -546,34 +561,44 @@ The price is $99.99 and the temperature is 75°F today.
                             <div class="form-group">
                                 <label>Speed: <span id="standard-speed-value" class="range-value">1.0</span></label>
                                 <div class="range-container">
-                                    <input type="range" id="standard-speed" min="0.7" max="1.3" value="1.0" step="0.05">
+                                    <input type="range" id="standard-speed" min="0.5" max="2.0" value="1.0" step="0.1">
                                 </div>
                             </div>
                             
                             <div class="form-group">
                                 <label>Volume: <span id="standard-volume-value" class="range-value">1.0</span></label>
                                 <div class="range-container">
-                                    <input type="range" id="standard-volume" min="0.5" max="2.0" value="1.0" step="0.1">
+                                    <input type="range" id="standard-volume" min="0" max="1" value="1.0" step="0.1">
                                 </div>
                             </div>
                             
                             <div class="form-group">
                                 <label>Pitch: <span id="standard-pitch-value" class="range-value">1.0</span></label>
                                 <div class="range-container">
-                                    <input type="range" id="standard-pitch" min="0.8" max="1.2" value="1.0" step="0.05">
+                                    <input type="range" id="standard-pitch" min="0.5" max="2.0" value="1.0" step="0.1">
                                 </div>
                             </div>
                         </div>
                         
                         <button class="btn-primary" id="generate-standard">
-                            <i class="fas fa-play"></i> Generate Speech
+                            <i class="fas fa-play"></i> Generate & Speak
+                        </button>
+                        
+                        <button class="btn-secondary" id="stop-standard" style="margin-left: 10px;">
+                            <i class="fas fa-stop"></i> Stop
                         </button>
                     </div>
                     
                     <div>
                         <div class="output-section">
                             <h3><i class="fas fa-music"></i> Output Audio</h3>
-                            <audio controls class="audio-player" id="standard-audio"></audio>
+                            <div style="background: #e9ecef; padding: 20px; border-radius: var(--border-radius); text-align: center;">
+                                <p><i class="fas fa-info-circle"></i> Audio will play through browser's speech synthesis</p>
+                                <p class="audio-status" id="standard-audio-status">Status: Ready</p>
+                                <div class="progress-bar" style="height: 5px; background: #ddd; border-radius: 5px; margin: 15px 0; overflow: hidden;">
+                                    <div id="standard-progress" style="height: 100%; background: var(--primary-color); width: 0%; transition: width 0.3s ease;"></div>
+                                </div>
+                            </div>
                             
                             <h3><i class="fas fa-chart-bar"></i> Processing Stats</h3>
                             <div class="stats-box" id="standard-stats">Ready to generate...</div>
@@ -581,7 +606,7 @@ The price is $99.99 and the temperature is 75°F today.
                             <h3><i class="fas fa-closed-captioning"></i> Subtitles</h3>
                             <div class="subtitle-box" id="standard-subtitles">Subtitles will appear here...</div>
                             
-                            <button class="btn-success download-btn" id="download-standard-srt" disabled>
+                            <button class="btn-success download-btn" id="download-standard-srt">
                                 <i class="fas fa-download"></i> Download SRT File
                             </button>
                         </div>
@@ -618,7 +643,7 @@ A: Visit our website at https://www.company.com
                                 </div>
                                 <div class="form-group">
                                     <label>Speed: <span id="qa-speed-q-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="qa-speed-q" min="0.7" max="1.3" value="1.0" step="0.05">
+                                    <input type="range" id="qa-speed-q" min="0.5" max="2.0" value="1.0" step="0.1">
                                 </div>
                             </div>
                             
@@ -632,7 +657,7 @@ A: Visit our website at https://www.company.com
                                 </div>
                                 <div class="form-group">
                                     <label>Speed: <span id="qa-speed-a-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="qa-speed-a" min="0.7" max="1.3" value="1.0" step="0.05">
+                                    <input type="range" id="qa-speed-a" min="0.5" max="2.0" value="1.0" step="0.1">
                                 </div>
                             </div>
                         </div>
@@ -643,27 +668,27 @@ A: Visit our website at https://www.company.com
                                 <label>Repeat Times: <span id="qa-repeat-value" class="range-value">1</span></label>
                                 <input type="range" id="qa-repeat" min="1" max="5" value="1" step="1">
                             </div>
-                            
-                            <div class="form-group">
-                                <label>Pause after Question (ms):</label>
-                                <input type="range" id="qa-pause-q" min="100" max="1000" value="300" step="50">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Pause after Answer (ms):</label>
-                                <input type="range" id="qa-pause-a" min="100" max="1500" value="500" step="50">
-                            </div>
                         </div>
                         
                         <button class="btn-primary" id="generate-qa">
-                            <i class="fas fa-play"></i> Generate Q&A Audio
+                            <i class="fas fa-play"></i> Generate & Speak Q&A
+                        </button>
+                        
+                        <button class="btn-secondary" id="stop-qa" style="margin-left: 10px;">
+                            <i class="fas fa-stop"></i> Stop
                         </button>
                     </div>
                     
                     <div>
                         <div class="output-section">
                             <h3><i class="fas fa-music"></i> Output Audio</h3>
-                            <audio controls class="audio-player" id="qa-audio"></audio>
+                            <div style="background: #e9ecef; padding: 20px; border-radius: var(--border-radius); text-align: center;">
+                                <p><i class="fas fa-info-circle"></i> Audio will play through browser's speech synthesis</p>
+                                <p class="audio-status" id="qa-audio-status">Status: Ready</p>
+                                <div class="progress-bar" style="height: 5px; background: #ddd; border-radius: 5px; margin: 15px 0; overflow: hidden;">
+                                    <div id="qa-progress" style="height: 100%; background: var(--primary-color); width: 0%; transition: width 0.3s ease;"></div>
+                                </div>
+                            </div>
                             
                             <h3><i class="fas fa-chart-bar"></i> Processing Stats</h3>
                             <div class="stats-box" id="qa-stats">Ready to generate Q&A...</div>
@@ -671,7 +696,7 @@ A: Visit our website at https://www.company.com
                             <h3><i class="fas fa-closed-captioning"></i> Subtitles</h3>
                             <div class="subtitle-box" id="qa-subtitles">Q&A subtitles will appear here...</div>
                             
-                            <button class="btn-success download-btn" id="download-qa-srt" disabled>
+                            <button class="btn-success download-btn" id="download-qa-srt">
                                 <i class="fas fa-download"></i> Download SRT File
                             </button>
                         </div>
@@ -708,7 +733,7 @@ CHAR4: The price is $1,234.56
                                 </div>
                                 <div class="form-group">
                                     <label>Speed: <span id="char1-speed-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="char1-speed" min="0.7" max="1.3" value="1.0" step="0.05">
+                                    <input type="range" id="char1-speed" min="0.5" max="2.0" value="1.0" step="0.1">
                                 </div>
                             </div>
                             
@@ -726,7 +751,7 @@ CHAR4: The price is $1,234.56
                                 </div>
                                 <div class="form-group">
                                     <label>Speed: <span id="char2-speed-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="char2-speed" min="0.7" max="1.3" value="1.0" step="0.05">
+                                    <input type="range" id="char2-speed" min="0.5" max="2.0" value="1.0" step="0.1">
                                 </div>
                             </div>
                             
@@ -744,7 +769,7 @@ CHAR4: The price is $1,234.56
                                 </div>
                                 <div class="form-group">
                                     <label>Speed: <span id="char3-speed-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="char3-speed" min="0.7" max="1.3" value="1.0" step="0.05">
+                                    <input type="range" id="char3-speed" min="0.5" max="2.0" value="1.0" step="0.1">
                                 </div>
                             </div>
                             
@@ -762,20 +787,30 @@ CHAR4: The price is $1,234.56
                                 </div>
                                 <div class="form-group">
                                     <label>Speed: <span id="char4-speed-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="char4-speed" min="0.7" max="1.3" value="1.0" step="0.05">
+                                    <input type="range" id="char4-speed" min="0.5" max="2.0" value="1.0" step="0.1">
                                 </div>
                             </div>
                         </div>
                         
                         <button class="btn-primary" id="generate-multichar">
-                            <i class="fas fa-play"></i> Generate Multi-Character Audio
+                            <i class="fas fa-play"></i> Generate & Speak Multi-Character
+                        </button>
+                        
+                        <button class="btn-secondary" id="stop-multichar" style="margin-left: 10px;">
+                            <i class="fas fa-stop"></i> Stop
                         </button>
                     </div>
                     
                     <div>
                         <div class="output-section">
                             <h3><i class="fas fa-music"></i> Output Audio</h3>
-                            <audio controls class="audio-player" id="multichar-audio"></audio>
+                            <div style="background: #e9ecef; padding: 20px; border-radius: var(--border-radius); text-align: center;">
+                                <p><i class="fas fa-info-circle"></i> Audio will play through browser's speech synthesis</p>
+                                <p class="audio-status" id="multichar-audio-status">Status: Ready</p>
+                                <div class="progress-bar" style="height: 5px; background: #ddd; border-radius: 5px; margin: 15px 0; overflow: hidden;">
+                                    <div id="multichar-progress" style="height: 100%; background: var(--primary-color); width: 0%; transition: width 0.3s ease;"></div>
+                                </div>
+                            </div>
                             
                             <h3><i class="fas fa-chart-bar"></i> Processing Stats</h3>
                             <div class="stats-box" id="multichar-stats">Ready to generate...</div>
@@ -783,7 +818,7 @@ CHAR4: The price is $1,234.56
                             <h3><i class="fas fa-closed-captioning"></i> Subtitles</h3>
                             <div class="subtitle-box" id="multichar-subtitles">Subtitles will appear here...</div>
                             
-                            <button class="btn-success download-btn" id="download-multichar-srt" disabled>
+                            <button class="btn-success download-btn" id="download-multichar-srt">
                                 <i class="fas fa-download"></i> Download SRT File
                             </button>
                         </div>
@@ -813,7 +848,7 @@ CHAR2: I'm fine, thanks!
     </div>
     
     <div class="status-bar">
-        <div id="status-text">Ready</div>
+        <div id="status-text">Ready - Click "Test Speech" first to activate speech synthesis</div>
         <div id="device-info">Using Web Speech API</div>
     </div>
 
@@ -821,26 +856,14 @@ CHAR2: I'm fine, thanks!
         // Speech Synthesis API Setup
         let speechSynthesis = window.speechSynthesis;
         let voices = [];
-        let selectedStandardVoice = null;
+        let currentUtterances = [];
         let isSpeaking = false;
-        let currentUtterance = null;
-        
-        // Available browser voices
-        const availableVoices = [
-            { name: "Google US English", lang: "en-US" },
-            { name: "Google UK English", lang: "en-GB" },
-            { name: "Google español", lang: "es-ES" },
-            { name: "Google français", lang: "fr-FR" },
-            { name: "Google Deutsch", lang: "de-DE" },
-            { name: "Google italiano", lang: "it-IT" },
-            { name: "Google 日本語", lang: "ja-JP" },
-            { name: "Google 한국어", lang: "ko-KR" },
-            { name: "Google 中文", lang: "zh-CN" },
-            { name: "Google русский", lang: "ru-RU" }
-        ];
+        let speechActivated = false;
         
         // Initialize the application
         function init() {
+            console.log("Initializing TTS Application...");
+            
             // Setup tab switching
             setupTabs();
             
@@ -853,10 +876,28 @@ CHAR2: I'm fine, thanks!
             // Setup event listeners
             setupEventListeners();
             
-            // Load voices
+            // Try to load voices immediately
             loadVoices();
             
-            updateStatus("Ready to generate speech");
+            // Check browser support
+            checkBrowserSupport();
+            
+            updateStatus("Ready - Click 'Test Speech' button first to activate speech synthesis");
+        }
+        
+        function checkBrowserSupport() {
+            if (!('speechSynthesis' in window)) {
+                showNotification('Speech synthesis is not supported in this browser', 'error');
+                document.getElementById('test-speech').disabled = true;
+                document.getElementById('generate-standard').disabled = true;
+                document.getElementById('generate-qa').disabled = true;
+                document.getElementById('generate-multichar').disabled = true;
+                updateStatus("Speech synthesis not supported");
+                return false;
+            }
+            
+            console.log("Speech synthesis is supported");
+            return true;
         }
         
         function setupTabs() {
@@ -915,19 +956,45 @@ CHAR2: I'm fine, thanks!
         }
         
         function setupVoiceSelectors() {
+            console.log("Setting up voice selectors...");
+            
             // Standard mode voice selector
             const voiceSelector = document.getElementById('standard-voice-selector');
-            availableVoices.forEach(voice => {
+            voiceSelector.innerHTML = '<p>Loading voices...</p>';
+            
+            // We'll populate voices when they're loaded
+            speechSynthesis.onvoiceschanged = () => {
+                populateAllVoiceSelectors();
+            };
+            
+            // Also try to populate immediately
+            setTimeout(populateAllVoiceSelectors, 1000);
+        }
+        
+        function populateAllVoiceSelectors() {
+            voices = speechSynthesis.getVoices();
+            console.log(`Loaded ${voices.length} voices`);
+            
+            if (voices.length === 0) {
+                console.log("No voices available yet, retrying...");
+                setTimeout(populateAllVoiceSelectors, 1000);
+                return;
+            }
+            
+            // Populate standard mode voice selector
+            const voiceSelector = document.getElementById('standard-voice-selector');
+            voiceSelector.innerHTML = '';
+            
+            voices.forEach((voice, index) => {
                 const voiceOption = document.createElement('div');
                 voiceOption.className = 'voice-option';
-                voiceOption.textContent = voice.name;
-                voiceOption.dataset.lang = voice.lang;
+                voiceOption.textContent = `${voice.name} (${voice.lang})`;
+                voiceOption.dataset.voiceIndex = index;
                 voiceOption.addEventListener('click', () => {
                     document.querySelectorAll('.voice-option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
                     voiceOption.classList.add('selected');
-                    selectedStandardVoice = voice;
                     updateStatus(`Selected voice: ${voice.name}`);
                 });
                 voiceSelector.appendChild(voiceOption);
@@ -936,7 +1003,6 @@ CHAR2: I'm fine, thanks!
             // Select first voice by default
             if (voiceSelector.firstChild) {
                 voiceSelector.firstChild.classList.add('selected');
-                selectedStandardVoice = availableVoices[0];
             }
             
             // Populate dropdowns for other modes
@@ -946,38 +1012,56 @@ CHAR2: I'm fine, thanks!
             populateVoiceDropdown('char2-voice');
             populateVoiceDropdown('char3-voice');
             populateVoiceDropdown('char4-voice');
+            
+            showNotification(`Loaded ${voices.length} voices`, 'success');
         }
         
         function populateVoiceDropdown(dropdownId) {
             const dropdown = document.getElementById(dropdownId);
-            availableVoices.forEach(voice => {
+            dropdown.innerHTML = '';
+            
+            voices.forEach((voice, index) => {
                 const option = document.createElement('option');
-                option.value = voice.lang;
-                option.textContent = voice.name;
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
                 dropdown.appendChild(option);
             });
+            
+            // Select default voice (prefer English)
+            const englishVoiceIndex = voices.findIndex(v => v.lang.startsWith('en-'));
+            if (englishVoiceIndex !== -1) {
+                dropdown.value = englishVoiceIndex;
+            } else if (voices.length > 0) {
+                dropdown.value = 0;
+            }
         }
         
         function loadVoices() {
-            // Get browser voices
             voices = speechSynthesis.getVoices();
             
-            // If no voices loaded yet, wait for the event
-            if (voices.length === 0) {
-                speechSynthesis.onvoiceschanged = () => {
-                    voices = speechSynthesis.getVoices();
-                    updateStatus(`Loaded ${voices.length} voices`);
-                };
-            } else {
+            if (voices.length > 0) {
+                console.log(`Voices loaded: ${voices.length}`);
+                populateAllVoiceSelectors();
                 updateStatus(`Loaded ${voices.length} voices`);
+            } else {
+                console.log("Waiting for voices to load...");
+                updateStatus("Loading voices...");
             }
         }
         
         function setupEventListeners() {
+            // Test speech button
+            document.getElementById('test-speech').addEventListener('click', testSpeech);
+            
             // Generate buttons
             document.getElementById('generate-standard').addEventListener('click', generateStandard);
             document.getElementById('generate-qa').addEventListener('click', generateQA);
             document.getElementById('generate-multichar').addEventListener('click', generateMultiChar);
+            
+            // Stop buttons
+            document.getElementById('stop-standard').addEventListener('click', stopAllSpeech);
+            document.getElementById('stop-qa').addEventListener('click', stopAllSpeech);
+            document.getElementById('stop-multichar').addEventListener('click', stopAllSpeech);
             
             // Download buttons
             document.getElementById('download-standard-srt').addEventListener('click', () => downloadSRT('standard'));
@@ -1013,7 +1097,52 @@ CHAR2: I'm fine, thanks!
             }
         }
         
-        // Text processing functions (simplified versions)
+        function testSpeech() {
+            if (!speechActivated) {
+                // First time activation
+                speechActivated = true;
+                showNotification("Speech synthesis activated! You can now generate speech.", 'success');
+            }
+            
+            const testText = "Hello! This is a test of the text to speech system. If you can hear this, speech synthesis is working correctly.";
+            
+            const utterance = new SpeechSynthesisUtterance(testText);
+            
+            // Try to use a default voice
+            if (voices.length > 0) {
+                const englishVoice = voices.find(v => v.lang.startsWith('en-')) || voices[0];
+                utterance.voice = englishVoice;
+            }
+            
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            updateStatus("Speaking test phrase...");
+            
+            utterance.onstart = () => {
+                console.log("Test speech started");
+            };
+            
+            utterance.onend = () => {
+                updateStatus("Test complete. You can now generate speech.");
+                showNotification("Test speech completed successfully", 'success');
+            };
+            
+            utterance.onerror = (event) => {
+                console.error("Speech error:", event);
+                updateStatus("Error in test speech");
+                showNotification("Error in speech synthesis", 'error');
+            };
+            
+            // Cancel any current speech
+            speechSynthesis.cancel();
+            
+            // Speak the test text
+            speechSynthesis.speak(utterance);
+        }
+        
+        // Text processing functions
         function processText(text) {
             let processed = text;
             
@@ -1041,16 +1170,18 @@ CHAR2: I'm fine, thanks!
         }
         
         function convertNumberToWords(num) {
+            num = parseFloat(num);
+            if (isNaN(num)) return num.toString();
+            
             const ones = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
             const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
             const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
             
-            num = parseInt(num);
-            if (num < 10) return ones[num];
-            if (num < 20) return teens[num - 10];
+            if (num < 10) return ones[Math.floor(num)];
+            if (num < 20) return teens[Math.floor(num) - 10];
             if (num < 100) {
                 const ten = Math.floor(num / 10);
-                const one = num % 10;
+                const one = Math.floor(num % 10);
                 return tens[ten] + (one > 0 ? '-' + ones[one] : '');
             }
             if (num < 1000) {
@@ -1085,6 +1216,11 @@ CHAR2: I'm fine, thanks!
         }
         
         function generateStandard() {
+            if (!speechActivated) {
+                showNotification("Please click 'Test Speech' first to activate speech synthesis", 'error');
+                return;
+            }
+            
             const text = document.getElementById('standard-text').value.trim();
             if (!text) {
                 showNotification('Please enter some text', 'error');
@@ -1092,6 +1228,10 @@ CHAR2: I'm fine, thanks!
             }
             
             showLoading(true, 'Processing text...');
+            
+            // Stop any current speech
+            speechSynthesis.cancel();
+            currentUtterances = [];
             
             // Process text
             const processedText = processText(text);
@@ -1101,13 +1241,28 @@ CHAR2: I'm fine, thanks!
             const volume = parseFloat(document.getElementById('standard-volume').value);
             const pitch = parseFloat(document.getElementById('standard-pitch').value);
             
+            // Get selected voice
+            let selectedVoice = null;
+            const selectedOption = document.querySelector('#standard-voice-selector .voice-option.selected');
+            if (selectedOption) {
+                const voiceIndex = parseInt(selectedOption.dataset.voiceIndex);
+                if (voiceIndex >= 0 && voiceIndex < voices.length) {
+                    selectedVoice = voices[voiceIndex];
+                }
+            }
+            
+            // If no voice selected, use first English voice
+            if (!selectedVoice) {
+                selectedVoice = voices.find(v => v.lang.startsWith('en-')) || voices[0];
+            }
+            
             // Create speech utterance
             const utterance = new SpeechSynthesisUtterance(processedText);
             
-            // Set voice if available
-            if (selectedStandardVoice && selectedStandardVoice.lang) {
-                const voice = voices.find(v => v.lang === selectedStandardVoice.lang);
-                if (voice) utterance.voice = voice;
+            // Set voice properties
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+                utterance.lang = selectedVoice.lang;
             }
             
             utterance.rate = speed;
@@ -1117,7 +1272,7 @@ CHAR2: I'm fine, thanks!
             // Generate stats
             const wordCount = text.split(/\s+/).filter(w => w.length > 0).length;
             const charCount = text.length;
-            const stats = `Text processed: ${wordCount} words, ${charCount} characters\nSpeed: ${speed}x, Volume: ${volume}, Pitch: ${pitch}\nVoice: ${selectedStandardVoice?.name || 'Default'}`;
+            const stats = `Text processed: ${wordCount} words, ${charCount} characters\nSpeed: ${speed}x, Volume: ${volume}, Pitch: ${pitch}\nVoice: ${selectedVoice?.name || 'Default'}`;
             
             // Generate simple subtitles
             const subtitles = generateSubtitles(text, 3); // 3 seconds per line
@@ -1125,33 +1280,63 @@ CHAR2: I'm fine, thanks!
             // Update UI
             document.getElementById('standard-stats').textContent = stats;
             document.getElementById('standard-subtitles').textContent = subtitles;
-            document.getElementById('download-standard-srt').disabled = false;
+            document.getElementById('standard-audio-status').textContent = 'Status: Speaking...';
             
-            // Set up audio recording (simulated)
-            simulateAudioGeneration('standard-audio', processedText.length);
+            // Update progress bar
+            const progressBar = document.getElementById('standard-progress');
+            progressBar.style.width = '0%';
             
-            // Speak the text
-            speechSynthesis.speak(utterance);
+            // Set up progress tracking
+            let startTime = Date.now();
+            const estimatedDuration = (processedText.length / 15) * 1000; // Rough estimate
             
-            // Update status
-            updateStatus(`Speaking: ${wordCount} words`);
+            const progressInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(100, (elapsed / estimatedDuration) * 100);
+                progressBar.style.width = `${progress}%`;
+            }, 100);
+            
+            // Store utterance
+            currentUtterances.push(utterance);
+            
+            // Event handlers
+            utterance.onstart = () => {
+                updateStatus(`Speaking: ${wordCount} words`);
+                isSpeaking = true;
+            };
             
             utterance.onend = () => {
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                document.getElementById('standard-audio-status').textContent = 'Status: Finished';
                 updateStatus('Finished speaking');
                 showLoading(false);
                 showNotification('Speech generated successfully', 'success');
+                isSpeaking = false;
+                currentUtterances = [];
             };
             
             utterance.onerror = (event) => {
+                clearInterval(progressInterval);
+                console.error("Speech error:", event);
+                document.getElementById('standard-audio-status').textContent = 'Status: Error';
                 updateStatus(`Error: ${event.error}`);
                 showLoading(false);
                 showNotification('Error generating speech', 'error');
+                isSpeaking = false;
+                currentUtterances = [];
             };
             
-            currentUtterance = utterance;
+            // Speak the text
+            speechSynthesis.speak(utterance);
         }
         
         function generateQA() {
+            if (!speechActivated) {
+                showNotification("Please click 'Test Speech' first to activate speech synthesis", 'error');
+                return;
+            }
+            
             const text = document.getElementById('qa-text').value.trim();
             if (!text) {
                 showNotification('Please enter Q&A text', 'error');
@@ -1159,6 +1344,10 @@ CHAR2: I'm fine, thanks!
             }
             
             showLoading(true, 'Processing Q&A...');
+            
+            // Stop any current speech
+            speechSynthesis.cancel();
+            currentUtterances = [];
             
             // Parse Q&A
             const dialogues = parseDialogues(text, ['Q', 'A']);
@@ -1173,76 +1362,125 @@ CHAR2: I'm fine, thanks!
             const speedQ = parseFloat(document.getElementById('qa-speed-q').value);
             const speedA = parseFloat(document.getElementById('qa-speed-a').value);
             const repeat = parseInt(document.getElementById('qa-repeat').value);
-            const pauseQ = parseInt(document.getElementById('qa-pause-q').value);
-            const pauseA = parseInt(document.getElementById('qa-pause-a').value);
             
-            // Generate combined text
+            // Get selected voices
+            const voiceQIndex = parseInt(document.getElementById('qa-voice-q').value);
+            const voiceAIndex = parseInt(document.getElementById('qa-voice-a').value);
+            const voiceQ = voices[voiceQIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0];
+            const voiceA = voices[voiceAIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0];
+            
+            // Generate combined text and speak each part
             let combinedText = '';
-            let subtitleLines = [];
             let currentTime = 0;
-            
-            dialogues.forEach((dialogue, index) => {
-                const processed = processText(dialogue.content);
-                combinedText += `${dialogue.speaker}: ${processed}\n\n`;
-                
-                // Simulate timing for subtitles
-                const duration = Math.max(2, processed.length / 10); // Simple duration calculation
-                const endTime = currentTime + duration;
-                
-                subtitleLines.push({
-                    index: index + 1,
-                    start: formatTime(currentTime),
-                    end: formatTime(endTime),
-                    text: `${dialogue.speaker}: ${dialogue.content}`
-                });
-                
-                currentTime = endTime + (dialogue.speaker === 'Q' ? pauseQ / 1000 : pauseA / 1000);
-            });
-            
-            // Generate stats
-            const stats = `Q&A pairs: ${dialogues.length}\nRepeat: ${repeat}x\nQuestion speed: ${speedQ}x\nAnswer speed: ${speedA}x\nPause Q: ${pauseQ}ms, Pause A: ${pauseA}ms`;
-            
-            // Generate SRT subtitles
-            let srtContent = '';
             let subtitleIndex = 1;
+            let srtContent = '';
             
+            // Clear previous utterances
+            currentUtterances = [];
+            
+            // Create utterances for each Q&A pair, repeated
             for (let r = 0; r < repeat; r++) {
                 dialogues.forEach(dialogue => {
-                    const startTime = (subtitleIndex - 1) * 3;
-                    const endTime = startTime + 3;
+                    const isQuestion = dialogue.speaker === 'Q';
+                    const content = processText(dialogue.content);
+                    const utterance = new SpeechSynthesisUtterance(content);
                     
+                    // Set voice and speed based on Q or A
+                    if (isQuestion) {
+                        utterance.voice = voiceQ;
+                        utterance.rate = speedQ;
+                    } else {
+                        utterance.voice = voiceA;
+                        utterance.rate = speedA;
+                    }
+                    
+                    // Calculate timing for subtitles
+                    const startTime = currentTime;
+                    const duration = Math.max(2, content.length / 15); // Rough estimate
+                    const endTime = startTime + duration;
+                    
+                    // Add to SRT
                     srtContent += `${subtitleIndex}\n`;
                     srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
                     srtContent += `${dialogue.speaker}: ${dialogue.content}\n\n`;
                     
+                    currentTime = endTime + 0.5; // 500ms pause
                     subtitleIndex++;
+                    
+                    // Add to combined text for display
+                    combinedText += `${dialogue.speaker}: ${content}\n\n`;
+                    
+                    // Store utterance
+                    currentUtterances.push(utterance);
                 });
             }
+            
+            // Generate stats
+            const stats = `Q&A pairs: ${dialogues.length}\nRepeat: ${repeat}x\nQuestion speed: ${speedQ}x\nAnswer speed: ${speedA}x\nQuestion voice: ${voiceQ.name}\nAnswer voice: ${voiceA.name}`;
             
             // Update UI
             document.getElementById('qa-stats').textContent = stats;
             document.getElementById('qa-subtitles').textContent = srtContent;
-            document.getElementById('download-qa-srt').disabled = false;
+            document.getElementById('qa-audio-status').textContent = 'Status: Speaking...';
             
-            // Simulate audio
-            simulateAudioGeneration('qa-audio', combinedText.length);
+            // Update progress bar
+            const progressBar = document.getElementById('qa-progress');
+            progressBar.style.width = '0%';
             
-            // Speak the combined text
-            const utterance = new SpeechSynthesisUtterance(combinedText);
-            utterance.rate = (speedQ + speedA) / 2; // Average speed
+            // Start progress tracking
+            let startTime = Date.now();
+            const estimatedDuration = (combinedText.length / 15) * 1000;
             
-            speechSynthesis.speak(utterance);
+            const progressInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(100, (elapsed / estimatedDuration) * 100);
+                progressBar.style.width = `${progress}%`;
+            }, 100);
             
-            updateStatus(`Speaking Q&A: ${dialogues.length} pairs`);
+            // Start speaking
+            updateStatus(`Speaking Q&A: ${dialogues.length} pairs x${repeat}`);
             
-            utterance.onend = () => {
-                updateStatus('Finished Q&A');
-                showLoading(false);
-                showNotification('Q&A audio generated', 'success');
-            };
+            // Speak all utterances
+            let currentIndex = 0;
+            
+            function speakNext() {
+                if (currentIndex < currentUtterances.length) {
+                    const utterance = currentUtterances[currentIndex];
+                    
+                    utterance.onend = () => {
+                        currentIndex++;
+                        speakNext();
+                    };
+                    
+                    utterance.onerror = () => {
+                        currentIndex++;
+                        speakNext();
+                    };
+                    
+                    speechSynthesis.speak(utterance);
+                } else {
+                    // All utterances complete
+                    clearInterval(progressInterval);
+                    progressBar.style.width = '100%';
+                    document.getElementById('qa-audio-status').textContent = 'Status: Finished';
+                    updateStatus('Finished Q&A');
+                    showLoading(false);
+                    showNotification('Q&A audio generated', 'success');
+                    isSpeaking = false;
+                    currentUtterances = [];
+                }
+            }
+            
+            isSpeaking = true;
+            speakNext();
         }
         
         function generateMultiChar() {
+            if (!speechActivated) {
+                showNotification("Please click 'Test Speech' first to activate speech synthesis", 'error');
+                return;
+            }
+            
             const text = document.getElementById('multichar-text').value.trim();
             if (!text) {
                 showNotification('Please enter dialogue text', 'error');
@@ -1250,6 +1488,10 @@ CHAR2: I'm fine, thanks!
             }
             
             showLoading(true, 'Processing multi-character dialogue...');
+            
+            // Stop any current speech
+            speechSynthesis.cancel();
+            currentUtterances = [];
             
             // Parse dialogues
             const char1Name = document.getElementById('char1-name').value.trim().toUpperCase();
@@ -1268,57 +1510,72 @@ CHAR2: I'm fine, thanks!
             
             // Get settings for each character
             const charSettings = {};
+            const charVoices = {};
             
             if (char1Name) {
+                const voiceIndex = parseInt(document.getElementById('char1-voice').value);
                 charSettings[char1Name] = {
                     speed: parseFloat(document.getElementById('char1-speed').value),
-                    voice: document.getElementById('char1-voice').value
+                    voice: voices[voiceIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0]
                 };
             }
             
             if (char2Name) {
+                const voiceIndex = parseInt(document.getElementById('char2-voice').value);
                 charSettings[char2Name] = {
                     speed: parseFloat(document.getElementById('char2-speed').value),
-                    voice: document.getElementById('char2-voice').value
+                    voice: voices[voiceIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0]
                 };
             }
             
             if (char3Name) {
+                const voiceIndex = parseInt(document.getElementById('char3-voice').value);
                 charSettings[char3Name] = {
                     speed: parseFloat(document.getElementById('char3-speed').value),
-                    voice: document.getElementById('char3-voice').value
+                    voice: voices[voiceIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0]
                 };
             }
             
             if (char4Name) {
+                const voiceIndex = parseInt(document.getElementById('char4-voice').value);
                 charSettings[char4Name] = {
                     speed: parseFloat(document.getElementById('char4-speed').value),
-                    voice: document.getElementById('char4-voice').value
+                    voice: voices[voiceIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0]
                 };
             }
             
-            // Generate combined text and subtitles
+            // Generate utterances and subtitles
             let combinedText = '';
             let srtContent = '';
             let currentTime = 0;
+            let subtitleIndex = 1;
             
             dialogues.forEach((dialogue, index) => {
-                const processed = processText(dialogue.content);
-                const settings = charSettings[dialogue.speaker] || { speed: 1.0 };
+                const content = processText(dialogue.content);
+                const settings = charSettings[dialogue.speaker] || { speed: 1.0, voice: voices[0] };
                 
-                combinedText += `${dialogue.speaker}: ${processed}\n\n`;
+                const utterance = new SpeechSynthesisUtterance(content);
+                utterance.voice = settings.voice;
+                utterance.rate = settings.speed;
                 
-                // Calculate duration based on content length and speed
-                const baseDuration = Math.max(2, processed.length / 15);
-                const duration = baseDuration / settings.speed;
-                const endTime = currentTime + duration;
+                // Calculate timing for subtitles
+                const startTime = currentTime;
+                const duration = Math.max(2, content.length / (15 * settings.speed));
+                const endTime = startTime + duration;
                 
                 // Add to SRT
-                srtContent += `${index + 1}\n`;
-                srtContent += `${formatTime(currentTime)} --> ${formatTime(endTime)}\n`;
+                srtContent += `${subtitleIndex}\n`;
+                srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
                 srtContent += `${dialogue.speaker}: ${dialogue.content}\n\n`;
                 
                 currentTime = endTime + 0.5; // 500ms pause
+                subtitleIndex++;
+                
+                // Add to combined text
+                combinedText += `${dialogue.speaker}: ${content}\n\n`;
+                
+                // Store utterance
+                currentUtterances.push(utterance);
             });
             
             // Generate stats
@@ -1327,25 +1584,58 @@ CHAR2: I'm fine, thanks!
             // Update UI
             document.getElementById('multichar-stats').textContent = stats;
             document.getElementById('multichar-subtitles').textContent = srtContent;
-            document.getElementById('download-multichar-srt').disabled = false;
+            document.getElementById('multichar-audio-status').textContent = 'Status: Speaking...';
             
-            // Simulate audio
-            simulateAudioGeneration('multichar-audio', combinedText.length);
+            // Update progress bar
+            const progressBar = document.getElementById('multichar-progress');
+            progressBar.style.width = '0%';
             
-            // Speak the combined text
-            const utterance = new SpeechSynthesisUtterance(combinedText);
-            const avgSpeed = Object.values(charSettings).reduce((sum, s) => sum + s.speed, 0) / Object.keys(charSettings).length;
-            utterance.rate = avgSpeed;
+            // Start progress tracking
+            let startTime = Date.now();
+            const estimatedDuration = currentTime * 1000;
             
-            speechSynthesis.speak(utterance);
+            const progressInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(100, (elapsed / estimatedDuration) * 100);
+                progressBar.style.width = `${progress}%`;
+            }, 100);
             
+            // Start speaking
             updateStatus(`Speaking multi-character: ${dialogues.length} lines`);
             
-            utterance.onend = () => {
-                updateStatus('Finished multi-character dialogue');
-                showLoading(false);
-                showNotification('Multi-character audio generated', 'success');
-            };
+            // Speak all utterances
+            let currentIndex = 0;
+            
+            function speakNext() {
+                if (currentIndex < currentUtterances.length) {
+                    const utterance = currentUtterances[currentIndex];
+                    
+                    utterance.onend = () => {
+                        currentIndex++;
+                        speakNext();
+                    };
+                    
+                    utterance.onerror = () => {
+                        currentIndex++;
+                        speakNext();
+                    };
+                    
+                    speechSynthesis.speak(utterance);
+                } else {
+                    // All utterances complete
+                    clearInterval(progressInterval);
+                    progressBar.style.width = '100%';
+                    document.getElementById('multichar-audio-status').textContent = 'Status: Finished';
+                    updateStatus('Finished multi-character dialogue');
+                    showLoading(false);
+                    showNotification('Multi-character audio generated', 'success');
+                    isSpeaking = false;
+                    currentUtterances = [];
+                }
+            }
+            
+            isSpeaking = true;
+            speakNext();
         }
         
         function formatTime(seconds) {
@@ -1363,43 +1653,37 @@ CHAR2: I'm fine, thanks!
             let currentTime = 0;
             
             lines.forEach((line, index) => {
-                const startTime = index * secondsPerLine;
+                const startTime = currentTime;
                 const endTime = startTime + secondsPerLine;
                 
                 srtContent += `${index + 1}\n`;
                 srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
                 srtContent += `${line.trim()}\n\n`;
+                
+                currentTime = endTime + 0.5; // 500ms pause between lines
             });
             
             return srtContent;
         }
         
-        function simulateAudioGeneration(audioElementId, textLength) {
-            const audioElement = document.getElementById(audioElementId);
+        function stopAllSpeech() {
+            speechSynthesis.cancel();
+            currentUtterances = [];
+            isSpeaking = false;
             
-            // Create a simple audio waveform (simulated)
-            const duration = Math.max(2, textLength / 20); // Simulate duration based on text length
-            const sampleRate = 44100;
-            const numSamples = duration * sampleRate;
+            // Reset progress bars
+            document.getElementById('standard-progress').style.width = '0%';
+            document.getElementById('qa-progress').style.width = '0%';
+            document.getElementById('multichar-progress').style.width = '0%';
             
-            // Create silent audio (in real implementation, this would be actual TTS audio)
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const buffer = audioContext.createBuffer(1, numSamples, sampleRate);
-            const data = buffer.getChannelData(0);
+            // Reset status
+            document.getElementById('standard-audio-status').textContent = 'Status: Stopped';
+            document.getElementById('qa-audio-status').textContent = 'Status: Stopped';
+            document.getElementById('multichar-audio-status').textContent = 'Status: Stopped';
             
-            // Generate a simple tone
-            for (let i = 0; i < numSamples; i++) {
-                data[i] = Math.sin(2 * Math.PI * 440 * i / sampleRate) * 0.1; // 440 Hz tone
-            }
-            
-            // Convert to audio blob
-            const source = audioContext.createBufferSource();
-            source.buffer = buffer;
-            
-            // Create media element source (simplified - real implementation would use actual TTS)
-            const blob = new Blob([], { type: 'audio/wav' });
-            const url = URL.createObjectURL(blob);
-            audioElement.src = url;
+            updateStatus('Speech stopped');
+            showNotification('Speech stopped', 'info');
+            showLoading(false);
         }
         
         function downloadSRT(mode) {
