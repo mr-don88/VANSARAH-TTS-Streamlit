@@ -1,1911 +1,1136 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced TTS with Multi-Character Dialogue</title>
+    <title>Text to Speech Studio - Chuyển văn bản thành giọng nói</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Audio Player -->
+    <link href="https://cdn.jsdelivr.net/npm/audio-player-js/dist/audio-player.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --dark-color: #1a1a2e;
             --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --border-radius: 8px;
-            --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            --transition: all 0.3s ease;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding-bottom: 40px;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        .language-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
         }
         
-        header {
-            text-align: center;
-            margin-bottom: 30px;
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
             color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow);
         }
         
-        header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .main-card {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
-        
-        .tabs {
-            display: flex;
-            background: var(--light-color);
-            border-bottom: 1px solid #dee2e6;
-        }
-        
-        .tab-btn {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            background: none;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--secondary-color);
-            position: relative;
-        }
-        
-        .tab-btn:hover {
-            background: rgba(0, 123, 255, 0.1);
-            color: var(--primary-color);
-        }
-        
-        .tab-btn.active {
-            color: var(--primary-color);
-            background: white;
-        }
-        
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: var(--primary-color);
-        }
-        
-        .tab-content {
-            display: none;
-            padding: 30px;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .form-section {
-            margin-bottom: 25px;
-        }
-        
-        .form-section h3 {
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--light-color);
-            color: var(--dark-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .form-section h3 i {
-            color: var(--primary-color);
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark-color);
-        }
-        
-        textarea, select, input[type="range"], input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            font-size: 14px;
-            transition: var(--transition);
-        }
-        
-        textarea {
-            min-height: 150px;
-            resize: vertical;
-            font-family: 'Courier New', monospace;
-        }
-        
-        textarea:focus, select:focus, input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-        }
-        
-        .range-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .range-value {
-            min-width: 40px;
-            text-align: center;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-        
-        .voice-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .voice-option {
-            flex: 1;
-            min-width: 150px;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: var(--border-radius);
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        
-        .voice-option:hover {
-            border-color: var(--primary-color);
-            background: rgba(0, 123, 255, 0.05);
-        }
-        
-        .voice-option.selected {
-            border-color: var(--primary-color);
-            background: rgba(0, 123, 255, 0.1);
-            font-weight: 600;
-        }
-        
-        .character-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .character-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .character-card {
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            padding: 20px;
-            background: var(--light-color);
-        }
-        
-        .character-card h4 {
-            margin-bottom: 15px;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .mixed-voice-section {
-            background: #f0f7ff;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin-top: 15px;
-            border: 1px solid #cce5ff;
-        }
-        
-        .mixed-voice-section h4 {
-            color: var(--info-color);
-            margin-bottom: 15px;
-        }
-        
-        .mix-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            align-items: center;
-        }
-        
-        .mix-row select, .mix-row input {
-            flex: 1;
-        }
-        
-        .mix-summary {
-            background: #e8f5e8;
-            padding: 15px;
-            border-radius: var(--border-radius);
-            margin-top: 15px;
-            border: 1px solid #c3e6cb;
-            font-weight: 600;
-            color: #155724;
-        }
-        
-        button {
-            padding: 12px 24px;
+        .card {
             border: none;
             border-radius: var(--border-radius);
-            font-size: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+            padding: 1rem 1.5rem;
             font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+        }
+        
+        .nav-tabs {
+            border-bottom: 2px solid rgba(67, 97, 238, 0.1);
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            color: #666;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            margin: 0 0.25rem;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: var(--primary-color);
+            background: rgba(67, 97, 238, 0.05);
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            background: white;
+            border-bottom: 3px solid var(--primary-color);
+            font-weight: 600;
         }
         
         .btn-primary {
-            background: var(--primary-color);
-            color: white;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
         
         .btn-primary:hover {
-            background: #0056b3;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
         }
         
-        .btn-secondary {
-            background: var(--secondary-color);
-            color: white;
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
         }
         
-        .btn-secondary:hover {
-            background: #545b62;
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
         }
         
-        .btn-success {
-            background: var(--success-color);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #218838;
-        }
-        
-        .output-section {
-            background: #f8f9fa;
-            border-radius: var(--border-radius);
-            padding: 25px;
-            margin-top: 20px;
-            border: 1px solid #dee2e6;
-        }
-        
-        .output-section h3 {
-            margin-bottom: 15px;
-            color: var(--dark-color);
+        .slider-container {
+            padding: 1rem 0;
         }
         
         .audio-player {
             width: 100%;
-            margin: 20px 0;
+            margin: 1.5rem 0;
             border-radius: var(--border-radius);
-        }
-        
-        .stats-box {
-            background: white;
-            padding: 15px;
-            border-radius: var(--border-radius);
-            border: 1px solid #dee2e6;
-            margin: 15px 0;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
-            max-height: 200px;
-            overflow-y: auto;
+            overflow: hidden;
+            box-shadow: var(--shadow);
         }
         
         .subtitle-box {
-            background: white;
-            padding: 15px;
-            border-radius: var(--border-radius);
-            border: 1px solid #dee2e6;
-            margin: 15px 0;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
             max-height: 300px;
             overflow-y: auto;
-        }
-        
-        .download-btn {
-            margin-top: 10px;
-        }
-        
-        .example-box {
-            background: #e9ecef;
-            padding: 15px;
-            border-radius: var(--border-radius);
-            margin-top: 20px;
-            border: 1px solid #ced4da;
-        }
-        
-        .example-box h4 {
-            margin-bottom: 10px;
-            color: var(--dark-color);
-        }
-        
-        .example-text {
             font-family: 'Courier New', monospace;
-            background: white;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
+            font-size: 0.9rem;
             white-space: pre-wrap;
         }
         
-        .toggle-btn {
-            background: none;
-            border: none;
-            color: var(--primary-color);
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-        }
-        
-        .advanced-settings {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        
-        .advanced-settings.show {
-            max-height: 500px;
-            margin-top: 15px;
-        }
-        
-        .status-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--dark-color);
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .loading {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .loading.show {
-            display: flex;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: var(--border-radius);
-            color: white;
+        .settings-accordion .accordion-button {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px !important;
             font-weight: 600;
-            transform: translateX(100%);
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            z-index: 1001;
-        }
-        
-        .notification.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        
-        .notification.success {
-            background: var(--success-color);
-        }
-        
-        .notification.error {
-            background: var(--danger-color);
-        }
-        
-        .notification.info {
-            background: var(--info-color);
-        }
-        
-        .test-btn {
-            background: var(--warning-color);
             color: var(--dark-color);
-            margin-left: 10px;
-            padding: 8px 16px;
-            font-size: 14px;
         }
         
-        .test-btn:hover {
-            background: #e0a800;
+        .char-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 0.25rem;
+            font-size: 0.85rem;
         }
         
-        .audio-container {
-            background: #e9ecef;
-            padding: 20px;
-            border-radius: var(--border-radius);
+        .char1-badge { background: #4cc9f0; color: white; }
+        .char2-badge { background: #7209b7; color: white; }
+        .char3-badge { background: #f72585; color: white; }
+        .q-badge { background: #4361ee; color: white; }
+        .a-badge { background: #38b000; color: white; }
+        
+        .loading-spinner {
+            display: none;
             text-align: center;
-            margin: 20px 0;
+            padding: 2rem;
         }
         
-        .audio-placeholder {
-            padding: 30px;
-            background: white;
-            border-radius: var(--border-radius);
-            border: 2px dashed #dee2e6;
-            color: #6c757d;
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
         }
         
-        .audio-placeholder i {
-            font-size: 48px;
-            margin-bottom: 10px;
-            color: var(--secondary-color);
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: #666;
+            font-size: 0.9rem;
         }
         
-        .progress-container {
-            margin: 15px 0;
-        }
-        
-        .progress-bar {
-            height: 6px;
-            background: #dee2e6;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: var(--primary-color);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        
-        .play-controls {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-        
-        .play-btn {
-            background: var(--success-color);
-            color: white;
-            padding: 8px 20px;
-        }
-        
-        .pause-btn {
-            background: var(--warning-color);
-            color: var(--dark-color);
-            padding: 8px 20px;
-        }
-        
-        .stop-btn {
-            background: var(--danger-color);
-            color: white;
-            padding: 8px 20px;
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .header {
+                padding: 1.5rem;
+                text-align: center;
+            }
+            
+            .language-selector {
+                position: static;
+                margin-bottom: 1rem;
+                text-align: center;
+            }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <div id="loading-text">Processing...</div>
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <select id="language-select" class="form-select form-select-sm" style="width: auto;">
+            <option value="vi">Tiếng Việt</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+            <option value="de">Deutsch</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+            <option value="zh">中文</option>
+        </select>
     </div>
-    
-    <div class="notification" id="notification"></div>
-    
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-microphone-alt"></i> Advanced TTS with Multi-Character Dialogue</h1>
-            <p>Generate high-quality speech with multiple voices and automatic subtitles</p>
-            <button class="test-btn" id="test-speech">
-                <i class="fas fa-volume-up"></i> Test Speech
-            </button>
-        </header>
-        
-        <div class="main-card">
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="standard"><i class="fas fa-book"></i> Standard Mode</button>
-                <button class="tab-btn" data-tab="qa"><i class="fas fa-question-circle"></i> Q&A Mode</button>
-                <button class="tab-btn" data-tab="multichar"><i class="fas fa-users"></i> Multi-Character Mode</button>
-            </div>
-            
-            <!-- Standard Mode Tab -->
-            <div class="tab-content active" id="standard-tab">
-                <div class="form-grid">
-                    <div>
-                        <div class="form-section">
-                            <h3><i class="fas fa-font"></i> Input Text</h3>
-                            <textarea id="standard-text" placeholder="Enter your text here...">
-Hello! Welcome to the Text-to-Speech system. 
-You can contact us at info@example.com or call 123-456-7890. 
-Our website is https://www.example.com. 
-The price is $99.99 and the temperature is 75°F today.
-                            </textarea>
+
+    <div class="container mt-5">
+        <!-- Header -->
+        <div class="header text-center">
+            <h1><i class="fas fa-microphone-alt me-3"></i> <span data-translate="title">Text to Speech Studio</span></h1>
+            <p class="lead mb-0" data-translate="subtitle">Chuyển văn bản thành giọng nói chuyên nghiệp với nhiều giọng đọc và ngôn ngữ</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="card">
+            <!-- Navigation Tabs -->
+            <ul class="nav nav-tabs px-3 pt-3" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="single-tab" data-bs-toggle="tab" data-bs-target="#single" type="button" role="tab">
+                        <i class="fas fa-user me-2"></i> <span data-translate="tab1">1 Nhân vật</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="multi-tab" data-bs-toggle="tab" data-bs-target="#multi" type="button" role="tab">
+                        <i class="fas fa-users me-2"></i> <span data-translate="tab2">Đa nhân vật</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="qa-tab" data-bs-toggle="tab" data-bs-target="#qa" type="button" role="tab">
+                        <i class="fas fa-comments me-2"></i> <span data-translate="tab3">Hỏi & Đáp</span>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content p-4" id="myTabContent">
+                <!-- Tab 1: Single Character -->
+                <div class="tab-pane fade show active" id="single" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="single-text" class="form-label" data-translate="storyContent">Nội dung truyện</label>
+                                <textarea class="form-control" id="single-text" rows="10" placeholder="Nhập nội dung truyện (mỗi dòng là một đoạn)..."></textarea>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="single-language" class="form-label" data-translate="language">Ngôn ngữ</label>
+                                    <select class="form-select" id="single-language">
+                                        <option value="vi-VN">Tiếng Việt</option>
+                                        <option value="en-US">English (US)</option>
+                                        <option value="en-GB">English (UK)</option>
+                                        <option value="fr-FR">Français</option>
+                                        <option value="es-ES">Español</option>
+                                        <option value="de-DE">Deutsch</option>
+                                        <option value="ja-JP">日本語</option>
+                                        <option value="ko-KR">한국어</option>
+                                        <option value="zh-CN">中文 (简体)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="single-voice" class="form-label" data-translate="voice">Giọng đọc</label>
+                                    <select class="form-select" id="single-voice">
+                                        <option value="vi-VN-HoaiMyNeural">Hoài My (Nữ)</option>
+                                        <option value="vi-VN-NamMinhNeural">Nam Minh (Nam)</option>
+                                        <option value="en-US-JennyNeural">Jenny (Nữ)</option>
+                                        <option value="en-US-GuyNeural">Guy (Nam)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="slider-container">
+                                <label for="single-rate" class="form-label" data-translate="speed">Tốc độ: <span id="single-rate-value">0%</span></label>
+                                <input type="range" class="form-range" id="single-rate" min="-30" max="30" step="1" value="0">
+                            </div>
+                            
+                            <div class="slider-container">
+                                <label for="single-pitch" class="form-label" data-translate="pitch">Cao độ: <span id="single-pitch-value">0Hz</span></label>
+                                <input type="range" class="form-range" id="single-pitch" min="-30" max="30" step="1" value="0">
+                            </div>
+                            
+                            <div class="slider-container">
+                                <label for="single-volume" class="form-label" data-translate="volume">Âm lượng: <span id="single-volume-value">100%</span></label>
+                                <input type="range" class="form-range" id="single-volume" min="50" max="150" step="1" value="100">
+                            </div>
+                            
+                            <div class="slider-container mb-4">
+                                <label for="single-pause" class="form-label" data-translate="pauseDuration">Khoảng nghỉ: <span id="single-pause-value">500ms</span></label>
+                                <input type="range" class="form-range" id="single-pause" min="100" max="2000" step="50" value="500">
+                            </div>
+                            
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="single-save-settings">
+                                <label class="form-check-label" for="single-save-settings" data-translate="saveSettings">Lưu cài đặt</label>
+                            </div>
+                            
+                            <button class="btn btn-primary w-100" id="single-generate" data-translate="generateAudio">
+                                <i class="fas fa-microphone-alt me-2"></i> Tạo truyện audio
+                            </button>
                         </div>
                         
-                        <div class="form-section">
-                            <h3><i class="fas fa-sliders-h"></i> Voice Settings</h3>
-                            <div class="form-group">
-                                <label>Select Voice:</label>
-                                <div class="voice-selector" id="standard-voice-selector">
-                                    <!-- Voices will be populated by JavaScript -->
+                        <div class="col-lg-6">
+                            <div class="loading-spinner" id="single-loading">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Đang xử lý...</span>
                                 </div>
+                                <p class="mt-3" data-translate="processing">Đang xử lý văn bản và tạo audio...</p>
                             </div>
                             
-                            <div class="form-group">
-                                <label>Speed: <span id="standard-speed-value" class="range-value">1.0</span></label>
-                                <div class="range-container">
-                                    <input type="range" id="standard-speed" min="0.5" max="2.0" value="1.0" step="0.1">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Volume: <span id="standard-volume-value" class="range-value">1.0</span></label>
-                                <div class="range-container">
-                                    <input type="range" id="standard-volume" min="0" max="1" value="1.0" step="0.1">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Pitch: <span id="standard-pitch-value" class="range-value">1.0</span></label>
-                                <div class="range-container">
-                                    <input type="range" id="standard-pitch" min="0.5" max="2.0" value="1.0" step="0.1">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <button class="btn-primary" id="generate-standard">
-                            <i class="fas fa-play"></i> Generate & Speak
-                        </button>
-                    </div>
-                    
-                    <div>
-                        <div class="output-section">
-                            <h3><i class="fas fa-music"></i> Output Audio</h3>
-                            <div class="audio-container">
-                                <div class="audio-placeholder" id="standard-audio-placeholder">
-                                    <i class="fas fa-headphones"></i>
-                                    <p>Audio will appear here after generation</p>
-                                    <small>Click "Generate & Speak" to create audio</small>
-                                </div>
-                                <audio controls class="audio-player" id="standard-audio" style="display: none;"></audio>
-                                
-                                <div class="progress-container" style="display: none;" id="standard-progress-container">
-                                    <div>Generating audio... <span id="standard-progress-text">0%</span></div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" id="standard-progress-fill"></div>
+                            <div id="single-results" style="display: none;">
+                                <div class="mb-3">
+                                    <label class="form-label" data-translate="generatedAudio">Audio đã tạo</label>
+                                    <audio controls class="audio-player" id="single-audio-player"></audio>
+                                    <div class="d-flex gap-2 mt-2">
+                                        <button class="btn btn-outline-primary btn-sm" id="single-download-audio">
+                                            <i class="fas fa-download me-1"></i> <span data-translate="downloadAudio">Tải audio</span>
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm" id="single-download-srt">
+                                            <i class="fas fa-file-alt me-1"></i> <span data-translate="downloadSubtitle">Tải phụ đề (.srt)</span>
+                                        </button>
                                     </div>
                                 </div>
                                 
-                                <div class="play-controls" style="display: none;" id="standard-controls">
-                                    <button class="play-btn" id="standard-play"><i class="fas fa-play"></i> Play</button>
-                                    <button class="pause-btn" id="standard-pause"><i class="fas fa-pause"></i> Pause</button>
-                                    <button class="stop-btn" id="standard-stop"><i class="fas fa-stop"></i> Stop</button>
+                                <div class="mb-3">
+                                    <label class="form-label" data-translate="status">Trạng thái</label>
+                                    <div class="alert alert-success" id="single-status"></div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label" data-translate="subtitleContent">Nội dung phụ đề</label>
+                                    <div class="subtitle-box" id="single-subtitles"></div>
                                 </div>
                             </div>
-                            
-                            <h3><i class="fas fa-chart-bar"></i> Processing Stats</h3>
-                            <div class="stats-box" id="standard-stats">Ready to generate...</div>
-                            
-                            <h3><i class="fas fa-closed-captioning"></i> Subtitles</h3>
-                            <div class="subtitle-box" id="standard-subtitles">Subtitles will appear here...</div>
-                            
-                            <button class="btn-success download-btn" id="download-standard-srt">
-                                <i class="fas fa-download"></i> Download SRT File
-                            </button>
-                            <button class="btn-secondary download-btn" id="download-standard-audio" style="margin-left: 10px; display: none;">
-                                <i class="fas fa-download"></i> Download Audio
-                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Q&A Mode Tab -->
-            <div class="tab-content" id="qa-tab">
-                <div class="form-grid">
-                    <div>
-                        <div class="form-section">
-                            <h3><i class="fas fa-comments"></i> Q&A Content</h3>
-                            <textarea id="qa-text" placeholder="Enter Q&A content...">
-Q: What's your email address?
-A: You can email us at info@company.com
-
-Q: What's your phone number?
-A: Call us at 123-456-7890
-
-Q: Where can I learn more?
-A: Visit our website at https://www.company.com
-                            </textarea>
-                        </div>
-                        
-                        <div class="character-grid">
-                            <div class="character-card">
-                                <h4><i class="fas fa-question"></i> Question Voice</h4>
-                                <div class="form-group">
-                                    <label>Voice:</label>
-                                    <select id="qa-voice-q">
-                                        <!-- Populated by JS -->
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Speed: <span id="qa-speed-q-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="qa-speed-q" min="0.5" max="2.0" value="1.0" step="0.1">
+                
+                <!-- Tab 2: Multi Character -->
+                <div class="tab-pane fade" id="multi" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="multi-text" class="form-label" data-translate="multiStoryContent">Nội dung câu chuyện đa nhân vật</label>
+                                <textarea class="form-control" id="multi-text" rows="10" placeholder="CHAR1: Lời thoại nhân vật 1&#10;CHAR2: Lời thoại nhân vật 2&#10;CHAR3: Lời thoại nhân vật 3&#10;NARRATOR: Lời dẫn truyện"></textarea>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <span data-translate="multiFormatHint">Sử dụng tiền tố: CHAR1:, CHAR2:, CHAR3:, NARRATOR:</span>
+                                    </small>
+                                    <div class="mt-1">
+                                        <span class="char-badge char1-badge">CHAR1</span>
+                                        <span class="char-badge char2-badge">CHAR2</span>
+                                        <span class="char-badge char3-badge">CHAR3</span>
+                                        <span class="char-badge" style="background: #6c757d; color: white;">NARRATOR</span>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="character-card">
-                                <h4><i class="fas fa-reply"></i> Answer Voice</h4>
-                                <div class="form-group">
-                                    <label>Voice:</label>
-                                    <select id="qa-voice-a">
-                                        <!-- Populated by JS -->
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Speed: <span id="qa-speed-a-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="qa-speed-a" min="0.5" max="2.0" value="1.0" step="0.1">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-section">
-                            <h3><i class="fas fa-cog"></i> Settings</h3>
-                            <div class="form-group">
-                                <label>Repeat Times: <span id="qa-repeat-value" class="range-value">1</span></label>
-                                <input type="range" id="qa-repeat" min="1" max="5" value="1" step="1">
-                            </div>
-                        </div>
-                        
-                        <button class="btn-primary" id="generate-qa">
-                            <i class="fas fa-play"></i> Generate & Speak Q&A
-                        </button>
-                    </div>
-                    
-                    <div>
-                        <div class="output-section">
-                            <h3><i class="fas fa-music"></i> Output Audio</h3>
-                            <div class="audio-container">
-                                <div class="audio-placeholder" id="qa-audio-placeholder">
-                                    <i class="fas fa-headphones"></i>
-                                    <p>Audio will appear here after generation</p>
-                                    <small>Click "Generate & Speak" to create audio</small>
-                                </div>
-                                <audio controls class="audio-player" id="qa-audio" style="display: none;"></audio>
-                                
-                                <div class="progress-container" style="display: none;" id="qa-progress-container">
-                                    <div>Generating audio... <span id="qa-progress-text">0%</span></div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" id="qa-progress-fill"></div>
+                            <!-- Character Settings -->
+                            <div class="accordion settings-accordion mb-4" id="multiAccordion">
+                                <!-- Character 1 -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#char1Settings">
+                                            <i class="fas fa-user me-2"></i> <span data-translate="character1Settings">Cài đặt nhân vật 1</span>
+                                        </button>
+                                    </h2>
+                                    <div id="char1Settings" class="accordion-collapse collapse show">
+                                        <div class="accordion-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label" data-translate="language">Ngôn ngữ</label>
+                                                    <select class="form-select multi-char-language" data-char="1">
+                                                        <option value="vi-VN">Tiếng Việt</option>
+                                                        <option value="en-US">English (US)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label" data-translate="voice">Giọng đọc</label>
+                                                    <select class="form-select multi-char-voice" data-char="1">
+                                                        <option value="vi-VN-HoaiMyNeural">Hoài My (Nữ)</option>
+                                                        <option value="vi-VN-NamMinhNeural">Nam Minh (Nam)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="slider-container">
+                                                <label class="form-label" data-translate="speed">Tốc độ: <span class="multi-char-rate-value" data-char="1">-20%</span></label>
+                                                <input type="range" class="form-range multi-char-rate" data-char="1" min="-30" max="30" value="-20">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 
-                                <div class="play-controls" style="display: none;" id="qa-controls">
-                                    <button class="play-btn" id="qa-play"><i class="fas fa-play"></i> Play</button>
-                                    <button class="pause-btn" id="qa-pause"><i class="fas fa-pause"></i> Pause</button>
-                                    <button class="stop-btn" id="qa-stop"><i class="fas fa-stop"></i> Stop</button>
+                                <!-- Character 2 -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#char2Settings">
+                                            <i class="fas fa-user me-2"></i> <span data-translate="character2Settings">Cài đặt nhân vật 2</span>
+                                        </button>
+                                    </h2>
+                                    <div id="char2Settings" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label" data-translate="language">Ngôn ngữ</label>
+                                                    <select class="form-select multi-char-language" data-char="2">
+                                                        <option value="vi-VN">Tiếng Việt</option>
+                                                        <option value="en-US">English (US)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label" data-translate="voice">Giọng đọc</label>
+                                                    <select class="form-select multi-char-voice" data-char="2">
+                                                        <option value="vi-VN-NamMinhNeural">Nam Minh (Nam)</option>
+                                                        <option value="en-US-GuyNeural">Guy (Nam)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="slider-container">
+                                                <label class="form-label" data-translate="speed">Tốc độ: <span class="multi-char-rate-value" data-char="2">-25%</span></label>
+                                                <input type="range" class="form-range multi-char-rate" data-char="2" min="-30" max="30" value="-25">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Character 3 -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#char3Settings">
+                                            <i class="fas fa-user me-2"></i> <span data-translate="character3Settings">Cài đặt nhân vật 3</span>
+                                        </button>
+                                    </h2>
+                                    <div id="char3Settings" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label" data-translate="language">Ngôn ngữ</label>
+                                                    <select class="form-select multi-char-language" data-char="3">
+                                                        <option value="vi-VN">Tiếng Việt</option>
+                                                        <option value="en-US">English (US)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label" data-translate="voice">Giọng đọc</label>
+                                                    <select class="form-select multi-char-voice" data-char="3">
+                                                        <option value="vi-VN-HoaiMyNeural">Hoài My (Nữ)</option>
+                                                        <option value="en-US-JennyNeural">Jenny (Nữ)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="slider-container">
+                                                <label class="form-label" data-translate="speed">Tốc độ: <span class="multi-char-rate-value" data-char="3">-15%</span></label>
+                                                <input type="range" class="form-range multi-char-rate" data-char="3" min="-30" max="30" value="-15">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <h3><i class="fas fa-chart-bar"></i> Processing Stats</h3>
-                            <div class="stats-box" id="qa-stats">Ready to generate Q&A...</div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="multi-repeat" class="form-label" data-translate="repeatTimes">Số lần lặp</label>
+                                    <input type="number" class="form-control" id="multi-repeat" min="1" max="5" value="1">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="multi-pause" class="form-label" data-translate="pauseBetween">Khoảng nghỉ giữa đoạn</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="multi-pause" min="100" max="2000" value="500">
+                                        <span class="input-group-text">ms</span>
+                                    </div>
+                                </div>
+                            </div>
                             
-                            <h3><i class="fas fa-closed-captioning"></i> Subtitles</h3>
-                            <div class="subtitle-box" id="qa-subtitles">Q&A subtitles will appear here...</div>
+                            <button class="btn btn-primary w-100" id="multi-generate" data-translate="generateAudio">
+                                <i class="fas fa-users me-2"></i> Tạo câu chuyện audio
+                            </button>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="loading-spinner" id="multi-loading">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Đang xử lý...</span>
+                                </div>
+                                <p class="mt-3" data-translate="processing">Đang xử lý văn bản và tạo audio...</p>
+                            </div>
                             
-                            <button class="btn-success download-btn" id="download-qa-srt">
-                                <i class="fas fa-download"></i> Download SRT File
-                            </button>
-                            <button class="btn-secondary download-btn" id="download-qa-audio" style="margin-left: 10px; display: none;">
-                                <i class="fas fa-download"></i> Download Audio
-                            </button>
+                            <div id="multi-results" style="display: none;">
+                                <div class="mb-3">
+                                    <label class="form-label" data-translate="generatedAudio">Audio đã tạo</label>
+                                    <audio controls class="audio-player" id="multi-audio-player"></audio>
+                                    <div class="d-flex gap-2 mt-2">
+                                        <button class="btn btn-outline-primary btn-sm" id="multi-download-audio">
+                                            <i class="fas fa-download me-1"></i> <span data-translate="downloadAudio">Tải audio</span>
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm" id="multi-download-srt">
+                                            <i class="fas fa-file-alt me-1"></i> <span data-translate="downloadSubtitle">Tải phụ đề (.srt)</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label" data-translate="status">Trạng thái</label>
+                                    <div class="alert alert-success" id="multi-status"></div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label" data-translate="subtitleContent">Nội dung phụ đề</label>
+                                    <div class="subtitle-box" id="multi-subtitles"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Multi-Character Mode Tab -->
-            <div class="tab-content" id="multichar-tab">
-                <div class="form-grid">
-                    <div>
-                        <div class="form-section">
-                            <h3><i class="fas fa-users"></i> Dialogue Content</h3>
-                            <textarea id="multichar-text" placeholder="Enter dialogue with character prefixes...">
-CHAR1: Hello everyone, my email is info@example.com
-CHAR2: Hi there! You can call me at 123-456-7890
-CHAR3: Our website is https://www.example.com
-CHAR4: The price is $1,234.56
-                            </textarea>
-                        </div>
-                        
-                        <div class="character-grid">
-                            <div class="character-card">
-                                <h4><i class="fas fa-user"></i> Character 1</h4>
-                                <div class="form-group">
-                                    <label>Name:</label>
-                                    <input type="text" id="char1-name" value="CHAR1">
-                                </div>
-                                <div class="form-group">
-                                    <label>Voice:</label>
-                                    <select id="char1-voice">
-                                        <!-- Populated by JS -->
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Speed: <span id="char1-speed-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="char1-speed" min="0.5" max="2.0" value="1.0" step="0.1">
+                
+                <!-- Tab 3: Q&A Dialogue -->
+                <div class="tab-pane fade" id="qa" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="qa-text" class="form-label" data-translate="dialogueContent">Nội dung hội thoại</label>
+                                <textarea class="form-control" id="qa-text" rows="10" placeholder="Q: Câu hỏi&#10;A: Câu trả lời&#10;Q: Câu hỏi tiếp theo&#10;A: Câu trả lời tiếp theo"></textarea>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <span data-translate="qaFormatHint">Sử dụng tiền tố: Q: cho câu hỏi, A: cho câu trả lời</span>
+                                    </small>
+                                    <div class="mt-1">
+                                        <span class="char-badge q-badge">Q (Câu hỏi)</span>
+                                        <span class="char-badge a-badge">A (Câu trả lời)</span>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="character-card">
-                                <h4><i class="fas fa-user"></i> Character 2</h4>
-                                <div class="form-group">
-                                    <label>Name:</label>
-                                    <input type="text" id="char2-name" value="CHAR2">
-                                </div>
-                                <div class="form-group">
-                                    <label>Voice:</label>
-                                    <select id="char2-voice">
-                                        <!-- Populated by JS -->
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Speed: <span id="char2-speed-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="char2-speed" min="0.5" max="2.0" value="1.0" step="0.1">
-                                </div>
-                            </div>
-                            
-                            <div class="character-card">
-                                <h4><i class="fas fa-user"></i> Character 3</h4>
-                                <div class="form-group">
-                                    <label>Name:</label>
-                                    <input type="text" id="char3-name" value="CHAR3">
-                                </div>
-                                <div class="form-group">
-                                    <label>Voice:</label>
-                                    <select id="char3-voice">
-                                        <!-- Populated by JS -->
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Speed: <span id="char3-speed-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="char3-speed" min="0.5" max="2.0" value="1.0" step="0.1">
-                                </div>
-                            </div>
-                            
-                            <div class="character-card">
-                                <h4><i class="fas fa-user"></i> Character 4</h4>
-                                <div class="form-group">
-                                    <label>Name:</label>
-                                    <input type="text" id="char4-name" value="CHAR4">
-                                </div>
-                                <div class="form-group">
-                                    <label>Voice:</label>
-                                    <select id="char4-voice">
-                                        <!-- Populated by JS -->
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Speed: <span id="char4-speed-value" class="range-value">1.0</span></label>
-                                    <input type="range" id="char4-speed" min="0.5" max="2.0" value="1.0" step="0.1">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <button class="btn-primary" id="generate-multichar">
-                            <i class="fas fa-play"></i> Generate & Speak Multi-Character
-                        </button>
-                    </div>
-                    
-                    <div>
-                        <div class="output-section">
-                            <h3><i class="fas fa-music"></i> Output Audio</h3>
-                            <div class="audio-container">
-                                <div class="audio-placeholder" id="multichar-audio-placeholder">
-                                    <i class="fas fa-headphones"></i>
-                                    <p>Audio will appear here after generation</p>
-                                    <small>Click "Generate & Speak" to create audio</small>
-                                </div>
-                                <audio controls class="audio-player" id="multichar-audio" style="display: none;"></audio>
-                                
-                                <div class="progress-container" style="display: none;" id="multichar-progress-container">
-                                    <div>Generating audio... <span id="multichar-progress-text">0%</span></div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" id="multichar-progress-fill"></div>
+                            <!-- Question Settings -->
+                            <div class="accordion settings-accordion mb-4" id="qaAccordion">
+                                <!-- Question Settings -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#questionSettings">
+                                            <i class="fas fa-question-circle me-2"></i> <span data-translate="questionSettings">Cài đặt giọng câu hỏi</span>
+                                        </button>
+                                    </h2>
+                                    <div id="questionSettings" class="accordion-collapse collapse show">
+                                        <div class="accordion-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label" data-translate="language">Ngôn ngữ</label>
+                                                    <select class="form-select" id="qa-language-q">
+                                                        <option value="vi-VN">Tiếng Việt</option>
+                                                        <option value="en-US">English (US)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label" data-translate="voice">Giọng đọc</label>
+                                                    <select class="form-select" id="qa-voice-q">
+                                                        <option value="vi-VN-HoaiMyNeural">Hoài My (Nữ)</option>
+                                                        <option value="en-US-JennyNeural">Jenny (Nữ)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="slider-container">
+                                                <label class="form-label" data-translate="speed">Tốc độ: <span id="qa-rate-q-value">-20%</span></label>
+                                                <input type="range" class="form-range" id="qa-rate-q" min="-30" max="30" value="-20">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 
-                                <div class="play-controls" style="display: none;" id="multichar-controls">
-                                    <button class="play-btn" id="multichar-play"><i class="fas fa-play"></i> Play</button>
-                                    <button class="pause-btn" id="multichar-pause"><i class="fas fa-pause"></i> Pause</button>
-                                    <button class="stop-btn" id="multichar-stop"><i class="fas fa-stop"></i> Stop</button>
+                                <!-- Answer Settings -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#answerSettings">
+                                            <i class="fas fa-comment-dots me-2"></i> <span data-translate="answerSettings">Cài đặt giọng câu trả lời</span>
+                                        </button>
+                                    </h2>
+                                    <div id="answerSettings" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label" data-translate="language">Ngôn ngữ</label>
+                                                    <select class="form-select" id="qa-language-a">
+                                                        <option value="vi-VN">Tiếng Việt</option>
+                                                        <option value="en-US">English (US)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label" data-translate="voice">Giọng đọc</label>
+                                                    <select class="form-select" id="qa-voice-a">
+                                                        <option value="vi-VN-NamMinhNeural">Nam Minh (Nam)</option>
+                                                        <option value="en-US-GuyNeural">Guy (Nam)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="slider-container">
+                                                <label class="form-label" data-translate="speed">Tốc độ: <span id="qa-rate-a-value">-25%</span></label>
+                                                <input type="range" class="form-range" id="qa-rate-a" min="-30" max="30" value="-25">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <h3><i class="fas fa-chart-bar"></i> Processing Stats</h3>
-                            <div class="stats-box" id="multichar-stats">Ready to generate...</div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <label for="qa-repeat" class="form-label" data-translate="repeatTimes">Số lần lặp</label>
+                                    <input type="number" class="form-control" id="qa-repeat" min="1" max="5" value="2">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="qa-pause-q" class="form-label" data-translate="pauseQuestion">Khoảng nghỉ câu hỏi</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="qa-pause-q" min="100" max="1000" value="200">
+                                        <span class="input-group-text">ms</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="qa-pause-a" class="form-label" data-translate="pauseAnswer">Khoảng nghỉ câu trả lời</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="qa-pause-a" min="100" max="2000" value="500">
+                                        <span class="input-group-text">ms</span>
+                                    </div>
+                                </div>
+                            </div>
                             
-                            <h3><i class="fas fa-closed-captioning"></i> Subtitles</h3>
-                            <div class="subtitle-box" id="multichar-subtitles">Subtitles will appear here...</div>
+                            <button class="btn btn-primary w-100" id="qa-generate" data-translate="generateAudio">
+                                <i class="fas fa-comments me-2"></i> Tạo audio hội thoại
+                            </button>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="loading-spinner" id="qa-loading">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Đang xử lý...</span>
+                                </div>
+                                <p class="mt-3" data-translate="processing">Đang xử lý văn bản và tạo audio...</p>
+                            </div>
                             
-                            <button class="btn-success download-btn" id="download-multichar-srt">
-                                <i class="fas fa-download"></i> Download SRT File
-                            </button>
-                            <button class="btn-secondary download-btn" id="download-multichar-audio" style="margin-left: 10px; display: none;">
-                                <i class="fas fa-download"></i> Download Audio
-                            </button>
+                            <div id="qa-results" style="display: none;">
+                                <div class="mb-3">
+                                    <label class="form-label" data-translate="generatedAudio">Audio đã tạo</label>
+                                    <audio controls class="audio-player" id="qa-audio-player"></audio>
+                                    <div class="d-flex gap-2 mt-2">
+                                        <button class="btn btn-outline-primary btn-sm" id="qa-download-audio">
+                                            <i class="fas fa-download me-1"></i> <span data-translate="downloadAudio">Tải audio</span>
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm" id="qa-download-srt">
+                                            <i class="fas fa-file-alt me-1"></i> <span data-translate="downloadSubtitle">Tải phụ đề (.srt)</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label" data-translate="status">Trạng thái</label>
+                                    <div class="alert alert-success" id="qa-status"></div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label" data-translate="subtitleContent">Nội dung phụ đề</label>
+                                    <div class="subtitle-box" id="qa-subtitles"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="example-box">
-            <h4><i class="fas fa-lightbulb"></i> Format Examples</h4>
-            <div class="example-text">
-<b>Standard Mode:</b>
-The temperature is 75°F and the price is $99.99.
-Call 123-456-7890 or email info@example.com
-
-<b>Q&A Mode:</b>
-Q: What's your email?
-A: Contact us at support@example.com
-
-<b>Multi-Character Mode:</b>
-CHAR1: Hello!
-CHAR2: Hi there!
-CHAR1: How are you?
-CHAR2: I'm fine, thanks!
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <h5 class="card-title" data-translate="feature1Title">Đa Ngôn Ngữ</h5>
+                        <p class="card-text" data-translate="feature1Desc">Hỗ trợ nhiều ngôn ngữ và giọng đọc khác nhau từ Microsoft Azure TTS</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h5 class="card-title" data-translate="feature2Title">Đa Nhân Vật</h5>
+                        <p class="card-text" data-translate="feature2Desc">Tạo hội thoại với nhiều nhân vật, mỗi nhân vật có giọng đọc riêng</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i class="fas fa-closed-captioning"></i>
+                        </div>
+                        <h5 class="card-title" data-translate="feature3Title">Phụ đề Tự động</h5>
+                        <p class="card-text" data-translate="feature3Desc">Tự động tạo phụ đề SRT đồng bộ với audio</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <div class="status-bar">
-        <div id="status-text">Ready - Click "Test Speech" first to activate speech synthesis</div>
-        <div id="device-info">Using Web Speech API with Audio Recording</div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p data-translate="footerText">Text to Speech Studio - Công cụ chuyển văn bản thành giọng nói chuyên nghiệp</p>
+            <p class="text-muted">
+                <small data-translate="techUsed">Sử dụng công nghệ Microsoft Azure Cognitive Services TTS</small>
+            </p>
+        </div>
     </div>
 
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/audio-player-js/dist/audio-player.min.js"></script>
+    
+    <!-- Translation Data -->
     <script>
-        // Speech Synthesis API Setup
-        let speechSynthesis = window.speechSynthesis;
-        let voices = [];
-        let currentUtterances = [];
-        let isSpeaking = false;
-        let speechActivated = false;
-        let audioContext = null;
-        let mediaRecorder = null;
-        let audioChunks = [];
-        let currentAudioBlob = null;
-        
-        // Initialize the application
-        function init() {
-            console.log("Initializing TTS Application...");
+        const translations = {
+            vi: {
+                title: "Text to Speech Studio",
+                subtitle: "Chuyển văn bản thành giọng nói chuyên nghiệp với nhiều giọng đọc và ngôn ngữ",
+                tab1: "1 Nhân vật",
+                tab2: "Đa nhân vật",
+                tab3: "Hỏi & Đáp",
+                storyContent: "Nội dung truyện",
+                multiStoryContent: "Nội dung câu chuyện đa nhân vật",
+                dialogueContent: "Nội dung hội thoại",
+                language: "Ngôn ngữ",
+                voice: "Giọng đọc",
+                speed: "Tốc độ",
+                pitch: "Cao độ",
+                volume: "Âm lượng",
+                pauseDuration: "Khoảng nghỉ",
+                saveSettings: "Lưu cài đặt",
+                generateAudio: "Tạo audio",
+                processing: "Đang xử lý văn bản và tạo audio...",
+                generatedAudio: "Audio đã tạo",
+                downloadAudio: "Tải audio",
+                downloadSubtitle: "Tải phụ đề (.srt)",
+                status: "Trạng thái",
+                subtitleContent: "Nội dung phụ đề",
+                character1Settings: "Cài đặt nhân vật 1",
+                character2Settings: "Cài đặt nhân vật 2",
+                character3Settings: "Cài đặt nhân vật 3",
+                multiFormatHint: "Sử dụng tiền tố: CHAR1:, CHAR2:, CHAR3:, NARRATOR:",
+                qaFormatHint: "Sử dụng tiền tố: Q: cho câu hỏi, A: cho câu trả lời",
+                repeatTimes: "Số lần lặp",
+                pauseBetween: "Khoảng nghỉ giữa đoạn",
+                pauseQuestion: "Khoảng nghỉ câu hỏi",
+                pauseAnswer: "Khoảng nghỉ câu trả lời",
+                questionSettings: "Cài đặt giọng câu hỏi",
+                answerSettings: "Cài đặt giọng câu trả lời",
+                feature1Title: "Đa Ngôn Ngữ",
+                feature1Desc: "Hỗ trợ nhiều ngôn ngữ và giọng đọc khác nhau từ Microsoft Azure TTS",
+                feature2Title: "Đa Nhân Vật",
+                feature2Desc: "Tạo hội thoại với nhiều nhân vật, mỗi nhân vật có giọng đọc riêng",
+                feature3Title: "Phụ đề Tự động",
+                feature3Desc: "Tự động tạo phụ đề SRT đồng bộ với audio",
+                footerText: "Text to Speech Studio - Công cụ chuyển văn bản thành giọng nói chuyên nghiệp",
+                techUsed: "Sử dụng công nghệ Microsoft Azure Cognitive Services TTS"
+            },
+            en: {
+                title: "Text to Speech Studio",
+                subtitle: "Convert text to professional speech with multiple voices and languages",
+                tab1: "Single Character",
+                tab2: "Multi Character",
+                tab3: "Q&A Dialogue",
+                storyContent: "Story Content",
+                multiStoryContent: "Multi-Character Story Content",
+                dialogueContent: "Dialogue Content",
+                language: "Language",
+                voice: "Voice",
+                speed: "Speed",
+                pitch: "Pitch",
+                volume: "Volume",
+                pauseDuration: "Pause Duration",
+                saveSettings: "Save Settings",
+                generateAudio: "Generate Audio",
+                processing: "Processing text and generating audio...",
+                generatedAudio: "Generated Audio",
+                downloadAudio: "Download Audio",
+                downloadSubtitle: "Download Subtitle (.srt)",
+                status: "Status",
+                subtitleContent: "Subtitle Content",
+                character1Settings: "Character 1 Settings",
+                character2Settings: "Character 2 Settings",
+                character3Settings: "Character 3 Settings",
+                multiFormatHint: "Use prefixes: CHAR1:, CHAR2:, CHAR3:, NARRATOR:",
+                qaFormatHint: "Use prefixes: Q: for questions, A: for answers",
+                repeatTimes: "Repeat Times",
+                pauseBetween: "Pause Between Segments",
+                pauseQuestion: "Question Pause",
+                pauseAnswer: "Answer Pause",
+                questionSettings: "Question Voice Settings",
+                answerSettings: "Answer Voice Settings",
+                feature1Title: "Multi-Language",
+                feature1Desc: "Support multiple languages and voices from Microsoft Azure TTS",
+                feature2Title: "Multi-Character",
+                feature2Desc: "Create dialogues with multiple characters, each with unique voice",
+                feature3Title: "Auto Subtitles",
+                feature3Desc: "Automatically generate SRT subtitles synchronized with audio",
+                footerText: "Text to Speech Studio - Professional text-to-speech conversion tool",
+                techUsed: "Powered by Microsoft Azure Cognitive Services TTS"
+            },
+            // Additional languages can be added here
+        };
+    </script>
+    
+    <!-- Main Application Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Language Management
+            const languageSelect = document.getElementById('language-select');
+            let currentLanguage = 'vi';
             
-            // Setup tab switching
-            setupTabs();
-            
-            // Setup range value displays
-            setupRangeDisplays();
-            
-            // Setup voice selectors
-            setupVoiceSelectors();
-            
-            // Setup event listeners
-            setupEventListeners();
-            
-            // Try to load voices immediately
-            loadVoices();
-            
-            // Check browser support
-            checkBrowserSupport();
-            
-            updateStatus("Ready - Click 'Test Speech' button first to activate speech synthesis");
-        }
-        
-        function checkBrowserSupport() {
-            if (!('speechSynthesis' in window)) {
-                showNotification('Speech synthesis is not supported in this browser', 'error');
-                document.getElementById('test-speech').disabled = true;
-                document.getElementById('generate-standard').disabled = true;
-                document.getElementById('generate-qa').disabled = true;
-                document.getElementById('generate-multichar').disabled = true;
-                updateStatus("Speech synthesis not supported");
-                return false;
-            }
-            
-            if (!('MediaRecorder' in window)) {
-                showNotification('Audio recording not supported. You can still speak but cannot save audio.', 'warning');
-            }
-            
-            console.log("Speech synthesis is supported");
-            return true;
-        }
-        
-        function setupTabs() {
-            const tabBtns = document.querySelectorAll('.tab-btn');
-            const tabContents = document.querySelectorAll('.tab-content');
-            
-            tabBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const tabId = btn.getAttribute('data-tab');
-                    
-                    // Remove active class from all tabs
-                    tabBtns.forEach(b => b.classList.remove('active'));
-                    tabContents.forEach(c => c.classList.remove('active'));
-                    
-                    // Add active class to clicked tab
-                    btn.classList.add('active');
-                    document.getElementById(`${tabId}-tab`).classList.add('active');
-                });
-            });
-        }
-        
-        function setupRangeDisplays() {
-            // Standard mode
-            updateRangeValue('standard-speed', 'standard-speed-value');
-            updateRangeValue('standard-volume', 'standard-volume-value');
-            updateRangeValue('standard-pitch', 'standard-pitch-value');
-            
-            // Q&A mode
-            updateRangeValue('qa-speed-q', 'qa-speed-q-value');
-            updateRangeValue('qa-speed-a', 'qa-speed-a-value');
-            updateRangeValue('qa-repeat', 'qa-repeat-value');
-            
-            // Multi-character mode
-            updateRangeValue('char1-speed', 'char1-speed-value');
-            updateRangeValue('char2-speed', 'char2-speed-value');
-            updateRangeValue('char3-speed', 'char3-speed-value');
-            updateRangeValue('char4-speed', 'char4-speed-value');
-            
-            // Add event listeners for all range inputs
-            document.querySelectorAll('input[type="range"]').forEach(input => {
-                const valueSpan = document.getElementById(input.id + '-value');
-                if (valueSpan) {
-                    input.addEventListener('input', () => {
-                        valueSpan.textContent = input.value;
-                    });
-                }
-            });
-        }
-        
-        function updateRangeValue(inputId, valueSpanId) {
-            const input = document.getElementById(inputId);
-            const valueSpan = document.getElementById(valueSpanId);
-            if (input && valueSpan) {
-                valueSpan.textContent = input.value;
-            }
-        }
-        
-        function setupVoiceSelectors() {
-            console.log("Setting up voice selectors...");
-            
-            // Standard mode voice selector
-            const voiceSelector = document.getElementById('standard-voice-selector');
-            voiceSelector.innerHTML = '<p>Loading voices...</p>';
-            
-            // We'll populate voices when they're loaded
-            speechSynthesis.onvoiceschanged = () => {
-                populateAllVoiceSelectors();
-            };
-            
-            // Also try to populate immediately
-            setTimeout(populateAllVoiceSelectors, 1000);
-        }
-        
-        function populateAllVoiceSelectors() {
-            voices = speechSynthesis.getVoices();
-            console.log(`Loaded ${voices.length} voices`);
-            
-            if (voices.length === 0) {
-                console.log("No voices available yet, retrying...");
-                setTimeout(populateAllVoiceSelectors, 1000);
-                return;
-            }
-            
-            // Populate standard mode voice selector
-            const voiceSelector = document.getElementById('standard-voice-selector');
-            voiceSelector.innerHTML = '';
-            
-            voices.forEach((voice, index) => {
-                const voiceOption = document.createElement('div');
-                voiceOption.className = 'voice-option';
-                voiceOption.textContent = `${voice.name} (${voice.lang})`;
-                voiceOption.dataset.voiceIndex = index;
-                voiceOption.addEventListener('click', () => {
-                    document.querySelectorAll('.voice-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    voiceOption.classList.add('selected');
-                    updateStatus(`Selected voice: ${voice.name}`);
-                });
-                voiceSelector.appendChild(voiceOption);
-            });
-            
-            // Select first voice by default
-            if (voiceSelector.firstChild) {
-                voiceSelector.firstChild.classList.add('selected');
-            }
-            
-            // Populate dropdowns for other modes
-            populateVoiceDropdown('qa-voice-q');
-            populateVoiceDropdown('qa-voice-a');
-            populateVoiceDropdown('char1-voice');
-            populateVoiceDropdown('char2-voice');
-            populateVoiceDropdown('char3-voice');
-            populateVoiceDropdown('char4-voice');
-            
-            showNotification(`Loaded ${voices.length} voices`, 'success');
-        }
-        
-        function populateVoiceDropdown(dropdownId) {
-            const dropdown = document.getElementById(dropdownId);
-            dropdown.innerHTML = '';
-            
-            voices.forEach((voice, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `${voice.name} (${voice.lang})`;
-                dropdown.appendChild(option);
-            });
-            
-            // Select default voice (prefer English)
-            const englishVoiceIndex = voices.findIndex(v => v.lang.startsWith('en-'));
-            if (englishVoiceIndex !== -1) {
-                dropdown.value = englishVoiceIndex;
-            } else if (voices.length > 0) {
-                dropdown.value = 0;
-            }
-        }
-        
-        function loadVoices() {
-            voices = speechSynthesis.getVoices();
-            
-            if (voices.length > 0) {
-                console.log(`Voices loaded: ${voices.length}`);
-                populateAllVoiceSelectors();
-                updateStatus(`Loaded ${voices.length} voices`);
-            } else {
-                console.log("Waiting for voices to load...");
-                updateStatus("Loading voices...");
-            }
-        }
-        
-        function setupEventListeners() {
-            // Test speech button
-            document.getElementById('test-speech').addEventListener('click', testSpeech);
-            
-            // Generate buttons
-            document.getElementById('generate-standard').addEventListener('click', () => generateAudio('standard'));
-            document.getElementById('generate-qa').addEventListener('click', () => generateAudio('qa'));
-            document.getElementById('generate-multichar').addEventListener('click', () => generateAudio('multichar'));
-            
-            // Download buttons
-            document.getElementById('download-standard-srt').addEventListener('click', () => downloadSRT('standard'));
-            document.getElementById('download-qa-srt').addEventListener('click', () => downloadSRT('qa'));
-            document.getElementById('download-multichar-srt').addEventListener('click', () => downloadSRT('multichar'));
-            
-            // Audio download buttons
-            document.getElementById('download-standard-audio').addEventListener('click', () => downloadAudio('standard'));
-            document.getElementById('download-qa-audio').addEventListener('click', () => downloadAudio('qa'));
-            document.getElementById('download-multichar-audio').addEventListener('click', () => downloadAudio('multichar'));
-            
-            // Play controls
-            setupPlayControls('standard');
-            setupPlayControls('qa');
-            setupPlayControls('multichar');
-        }
-        
-        function setupPlayControls(mode) {
-            const playBtn = document.getElementById(`${mode}-play`);
-            const pauseBtn = document.getElementById(`${mode}-pause`);
-            const stopBtn = document.getElementById(`${mode}-stop`);
-            const audioElement = document.getElementById(`${mode}-audio`);
-            
-            if (playBtn) {
-                playBtn.addEventListener('click', () => {
-                    if (audioElement.src) {
-                        audioElement.play().catch(e => console.error("Play error:", e));
+            function updateTranslations(lang) {
+                currentLanguage = lang;
+                document.querySelectorAll('[data-translate]').forEach(element => {
+                    const key = element.getAttribute('data-translate');
+                    if (translations[lang] && translations[lang][key]) {
+                        if (element.tagName === 'INPUT' && element.type === 'text' || element.type === 'textarea') {
+                            element.placeholder = translations[lang][key];
+                        } else {
+                            element.textContent = translations[lang][key];
+                        }
                     }
                 });
+                
+                // Update slider values
+                updateSliderValues();
             }
             
-            if (pauseBtn) {
-                pauseBtn.addEventListener('click', () => {
-                    audioElement.pause();
-                });
-            }
-            
-            if (stopBtn) {
-                stopBtn.addEventListener('click', () => {
-                    audioElement.pause();
-                    audioElement.currentTime = 0;
-                });
-            }
-            
-            // Audio element events
-            audioElement.addEventListener('play', () => {
-                updateStatus(`Playing ${mode} audio`);
+            languageSelect.addEventListener('change', function() {
+                updateTranslations(this.value);
             });
             
-            audioElement.addEventListener('ended', () => {
-                updateStatus(`${mode} audio finished`);
-            });
-        }
-        
-        function updateStatus(message) {
-            document.getElementById('status-text').textContent = message;
-            console.log(`Status: ${message}`);
-        }
-        
-        function showNotification(message, type = 'info') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${type} show`;
+            // Initialize with Vietnamese
+            updateTranslations('vi');
             
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-        
-        function showLoading(show, message = 'Processing...') {
-            const loading = document.getElementById('loading');
-            const loadingText = document.getElementById('loading-text');
-            
-            loadingText.textContent = message;
-            
-            if (show) {
-                loading.classList.add('show');
-            } else {
-                loading.classList.remove('show');
-            }
-        }
-        
-        function testSpeech() {
-            if (!speechActivated) {
-                // First time activation
-                speechActivated = true;
-                showNotification("Speech synthesis activated! You can now generate speech.", 'success');
-            }
-            
-            const testText = "Hello! This is a test of the text to speech system. If you can hear this, speech synthesis is working correctly.";
-            
-            const utterance = new SpeechSynthesisUtterance(testText);
-            
-            // Try to use a default voice
-            if (voices.length > 0) {
-                const englishVoice = voices.find(v => v.lang.startsWith('en-')) || voices[0];
-                utterance.voice = englishVoice;
-            }
-            
-            utterance.rate = 1.0;
-            utterance.pitch = 1.0;
-            utterance.volume = 1.0;
-            
-            updateStatus("Speaking test phrase...");
-            
-            utterance.onstart = () => {
-                console.log("Test speech started");
-            };
-            
-            utterance.onend = () => {
-                updateStatus("Test complete. You can now generate speech.");
-                showNotification("Test speech completed successfully", 'success');
-            };
-            
-            utterance.onerror = (event) => {
-                console.error("Speech error:", event);
-                updateStatus("Error in test speech");
-                showNotification("Error in speech synthesis", 'error');
-            };
-            
-            // Cancel any current speech
-            speechSynthesis.cancel();
-            
-            // Speak the test text
-            speechSynthesis.speak(utterance);
-        }
-        
-        // Text processing functions
-        function processText(text) {
-            let processed = text;
-            
-            // Replace special formats
-            processed = processed.replace(/https?:\/\/[^\s]+/g, 'website link');
-            processed = processed.replace(/[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}/g, 'email address');
-            processed = processed.replace(/\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g, 'phone number');
-            
-            // Currency
-            processed = processed.replace(/\$(\d+(?:\.\d+)?)/g, (match, amount) => {
-                return `${convertNumberToWords(amount)} dollars`;
-            });
-            
-            // Temperature
-            processed = processed.replace(/(\d+)°F/g, (match, temp) => {
-                return `${convertNumberToWords(temp)} degrees Fahrenheit`;
-            });
-            
-            // Simple number conversion
-            processed = processed.replace(/\b(\d+)\b/g, (match, num) => {
-                return convertNumberToWords(num);
-            });
-            
-            return processed;
-        }
-        
-        function convertNumberToWords(num) {
-            num = parseFloat(num);
-            if (isNaN(num)) return num.toString();
-            
-            const ones = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
-            const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
-            const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
-            
-            if (num < 10) return ones[Math.floor(num)];
-            if (num < 20) return teens[Math.floor(num) - 10];
-            if (num < 100) {
-                const ten = Math.floor(num / 10);
-                const one = Math.floor(num % 10);
-                return tens[ten] + (one > 0 ? '-' + ones[one] : '');
-            }
-            if (num < 1000) {
-                const hundred = Math.floor(num / 100);
-                const remainder = num % 100;
-                return ones[hundred] + ' hundred' + (remainder > 0 ? ' ' + convertNumberToWords(remainder) : '');
-            }
-            return num.toString();
-        }
-        
-        function parseDialogues(text, prefixes) {
-            const dialogues = [];
-            const lines = text.split('\n');
-            
-            lines.forEach(line => {
-                const trimmed = line.trim();
-                if (!trimmed) return;
+            // Slider Value Updates
+            function updateSliderValues() {
+                // Single character sliders
+                document.getElementById('single-rate-value').textContent = 
+                    document.getElementById('single-rate').value + '%';
+                document.getElementById('single-pitch-value').textContent = 
+                    document.getElementById('single-pitch').value + 'Hz';
+                document.getElementById('single-volume-value').textContent = 
+                    document.getElementById('single-volume').value + '%';
+                document.getElementById('single-pause-value').textContent = 
+                    document.getElementById('single-pause').value + 'ms';
                 
-                for (const prefix of prefixes) {
-                    if (trimmed.toUpperCase().startsWith(prefix.toUpperCase() + ':')) {
-                        const content = trimmed.substring(prefix.length + 1).trim();
-                        dialogues.push({
-                            speaker: prefix.toUpperCase(),
-                            content: content
-                        });
-                        break;
-                    }
-                }
-            });
-            
-            return dialogues;
-        }
-        
-        async function generateAudio(mode) {
-            if (!speechActivated) {
-                showNotification("Please click 'Test Speech' first to activate speech synthesis", 'error');
-                return;
-            }
-            
-            // Get text based on mode
-            let text = '';
-            let settings = {};
-            
-            if (mode === 'standard') {
-                text = document.getElementById('standard-text').value.trim();
-                if (!text) {
-                    showNotification('Please enter some text', 'error');
-                    return;
-                }
-                
-                // Get settings
-                settings.speed = parseFloat(document.getElementById('standard-speed').value);
-                settings.volume = parseFloat(document.getElementById('standard-volume').value);
-                settings.pitch = parseFloat(document.getElementById('standard-pitch').value);
-                
-                // Get selected voice
-                const selectedOption = document.querySelector('#standard-voice-selector .voice-option.selected');
-                if (selectedOption) {
-                    const voiceIndex = parseInt(selectedOption.dataset.voiceIndex);
-                    if (voiceIndex >= 0 && voiceIndex < voices.length) {
-                        settings.voice = voices[voiceIndex];
-                    }
-                }
-                
-                if (!settings.voice) {
-                    settings.voice = voices.find(v => v.lang.startsWith('en-')) || voices[0];
-                }
-                
-                settings.text = processText(text);
-                
-            } else if (mode === 'qa') {
-                text = document.getElementById('qa-text').value.trim();
-                if (!text) {
-                    showNotification('Please enter Q&A text', 'error');
-                    return;
-                }
-                
-                // Parse Q&A
-                const dialogues = parseDialogues(text, ['Q', 'A']);
-                if (dialogues.length === 0) {
-                    showNotification('No valid Q/A pairs found. Use format: Q: question\\nA: answer', 'error');
-                    return;
-                }
-                
-                // Get settings
-                settings.speedQ = parseFloat(document.getElementById('qa-speed-q').value);
-                settings.speedA = parseFloat(document.getElementById('qa-speed-a').value);
-                settings.repeat = parseInt(document.getElementById('qa-repeat').value);
-                
-                // Get voices
-                const voiceQIndex = parseInt(document.getElementById('qa-voice-q').value);
-                const voiceAIndex = parseInt(document.getElementById('qa-voice-a').value);
-                settings.voiceQ = voices[voiceQIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0];
-                settings.voiceA = voices[voiceAIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0];
-                
-                // Process dialogues
-                settings.dialogues = dialogues.map(d => ({
-                    speaker: d.speaker,
-                    content: processText(d.content),
-                    original: d.content
-                }));
-                
-            } else if (mode === 'multichar') {
-                text = document.getElementById('multichar-text').value.trim();
-                if (!text) {
-                    showNotification('Please enter dialogue text', 'error');
-                    return;
-                }
-                
-                // Get character names
-                const charNames = [
-                    document.getElementById('char1-name').value.trim().toUpperCase(),
-                    document.getElementById('char2-name').value.trim().toUpperCase(),
-                    document.getElementById('char3-name').value.trim().toUpperCase(),
-                    document.getElementById('char4-name').value.trim().toUpperCase()
-                ].filter(name => name);
-                
-                // Parse dialogues
-                const dialogues = parseDialogues(text, charNames);
-                if (dialogues.length === 0) {
-                    showNotification('No valid dialogues found. Use format: CHAR1: dialogue', 'error');
-                    return;
-                }
-                
-                // Get settings for each character
-                settings.charSettings = {};
-                settings.dialogues = [];
-                
-                charNames.forEach((charName, index) => {
-                    const speed = parseFloat(document.getElementById(`char${index + 1}-speed`).value);
-                    const voiceIndex = parseInt(document.getElementById(`char${index + 1}-voice`).value);
-                    const voice = voices[voiceIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0];
-                    
-                    settings.charSettings[charName] = { speed, voice };
+                // Multi character sliders
+                document.querySelectorAll('.multi-char-rate').forEach(slider => {
+                    const char = slider.getAttribute('data-char');
+                    const valueSpan = document.querySelector(`.multi-char-rate-value[data-char="${char}"]`);
+                    valueSpan.textContent = slider.value + '%';
                 });
                 
-                // Process dialogues
-                dialogues.forEach(d => {
-                    settings.dialogues.push({
-                        speaker: d.speaker,
-                        content: processText(d.content),
-                        original: d.content
-                    });
-                });
+                // Q&A sliders
+                document.getElementById('qa-rate-q-value').textContent = 
+                    document.getElementById('qa-rate-q').value + '%';
+                document.getElementById('qa-rate-a-value').textContent = 
+                    document.getElementById('qa-rate-a').value + '%';
             }
             
-            // Show loading
-            showLoading(true, `Generating ${mode} audio...`);
+            // Attach slider events
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                slider.addEventListener('input', updateSliderValues);
+            });
             
-            // Update UI
-            const placeholder = document.getElementById(`${mode}-audio-placeholder`);
-            const audioElement = document.getElementById(`${mode}-audio`);
-            const progressContainer = document.getElementById(`${mode}-progress-container`);
-            const controls = document.getElementById(`${mode}-controls`);
-            const progressFill = document.getElementById(`${mode}-progress-fill`);
-            const progressText = document.getElementById(`${mode}-progress-text`);
+            // Initialize slider values
+            updateSliderValues();
             
-            placeholder.style.display = 'none';
-            audioElement.style.display = 'none';
-            progressContainer.style.display = 'block';
-            controls.style.display = 'none';
-            
-            // Reset progress
-            progressFill.style.width = '0%';
-            progressText.textContent = '0%';
-            
-            try {
-                // Start recording audio
-                await startAudioRecording();
+            // Audio Generation Simulation
+            function simulateTTSGeneration(text, voice, rate, pitch, volume, callback) {
+                // In a real implementation, this would call a backend API
+                // For demo purposes, we simulate with a timeout
                 
-                // Generate speech based on mode
-                if (mode === 'standard') {
-                    await generateStandardAudio(settings, progressFill, progressText);
-                } else if (mode === 'qa') {
-                    await generateQAAudio(settings, progressFill, progressText);
-                } else if (mode === 'multichar') {
-                    await generateMultiCharAudio(settings, progressFill, progressText);
-                }
-                
-                // Stop recording
-                const audioBlob = await stopAudioRecording();
-                
-                if (audioBlob) {
-                    // Create audio URL
+                setTimeout(() => {
+                    // Generate a fake audio URL (in real app, this would be from your TTS service)
+                    const audioBlob = new Blob([], { type: 'audio/mpeg' });
                     const audioUrl = URL.createObjectURL(audioBlob);
                     
-                    // Update audio element
-                    audioElement.src = audioUrl;
-                    audioElement.style.display = 'block';
-                    controls.style.display = 'flex';
-                    progressContainer.style.display = 'none';
+                    // Generate fake subtitles
+                    const subtitles = `1\n00:00:00,000 --> 00:00:05,000\n${text.substring(0, 100)}...\n\n2\n00:00:05,000 --> 00:00:10,000\n${text.substring(100, 200)}...`;
                     
-                    // Store blob for download
-                    window[`${mode}AudioBlob`] = audioBlob;
-                    
-                    // Show download button
-                    document.getElementById(`download-${mode}-audio`).style.display = 'inline-block';
-                    
-                    // Generate stats and subtitles
-                    generateStatsAndSubtitles(mode, text, settings);
-                    
-                    showNotification(`${mode} audio generated successfully`, 'success');
-                    updateStatus(`${mode} audio ready to play`);
-                    
-                    // Auto-play the audio
-                    setTimeout(() => {
-                        audioElement.play().catch(e => {
-                            console.log("Auto-play blocked, user needs to interact");
-                        });
-                    }, 500);
-                }
-                
-            } catch (error) {
-                console.error(`Error generating ${mode} audio:`, error);
-                showNotification(`Error generating audio: ${error.message}`, 'error');
-                
-                // Reset UI
-                placeholder.style.display = 'block';
-                progressContainer.style.display = 'none';
-                audioElement.style.display = 'none';
-                controls.style.display = 'none';
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        async function startAudioRecording() {
-            if (!('MediaRecorder' in window)) {
-                throw new Error('Audio recording not supported in this browser');
+                    callback({
+                        audioUrl: audioUrl,
+                        subtitles: subtitles,
+                        status: '✅ Hoàn thành! Bấm vào nút phát để nghe'
+                    });
+                }, 2000);
             }
             
-            try {
-                // Create audio context
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            // Single Character Tab
+            document.getElementById('single-generate').addEventListener('click', function() {
+                const text = document.getElementById('single-text').value;
+                const voice = document.getElementById('single-voice').value;
+                const rate = document.getElementById('single-rate').value;
+                const pitch = document.getElementById('single-pitch').value;
+                const volume = document.getElementById('single-volume').value;
                 
-                // Create destination node for recording
-                const destination = audioContext.createMediaStreamDestination();
-                
-                // Get user media (microphone)
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // Create media recorder
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                
-                // Collect audio data
-                mediaRecorder.ondataavailable = (event) => {
-                    if (event.data.size > 0) {
-                        audioChunks.push(event.data);
-                    }
-                };
-                
-                // Start recording
-                mediaRecorder.start();
-                
-                return true;
-            } catch (error) {
-                console.error("Audio recording error:", error);
-                throw new Error('Could not start audio recording');
-            }
-        }
-        
-        async function stopAudioRecording() {
-            return new Promise((resolve) => {
-                if (!mediaRecorder) {
-                    resolve(null);
+                if (!text.trim()) {
+                    alert(currentLanguage === 'vi' ? 'Vui lòng nhập nội dung văn bản' : 'Please enter text content');
                     return;
                 }
                 
-                mediaRecorder.onstop = () => {
-                    // Create blob from chunks
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                // Show loading
+                document.getElementById('single-loading').style.display = 'block';
+                document.getElementById('single-results').style.display = 'none';
+                
+                simulateTTSGeneration(text, voice, rate, pitch, volume, function(result) {
+                    document.getElementById('single-loading').style.display = 'none';
+                    document.getElementById('single-results').style.display = 'block';
                     
-                    // Stop all tracks
-                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                    const audioPlayer = document.getElementById('single-audio-player');
+                    audioPlayer.src = result.audioUrl;
                     
-                    // Reset
-                    mediaRecorder = null;
-                    audioChunks = [];
+                    document.getElementById('single-status').textContent = result.status;
+                    document.getElementById('single-subtitles').textContent = result.subtitles;
                     
-                    resolve(audioBlob);
-                };
-                
-                // Stop recording
-                mediaRecorder.stop();
-            });
-        }
-        
-        async function generateStandardAudio(settings, progressFill, progressText) {
-            return new Promise((resolve) => {
-                const utterance = new SpeechSynthesisUtterance(settings.text);
-                
-                utterance.voice = settings.voice;
-                utterance.rate = settings.speed;
-                utterance.volume = settings.volume;
-                utterance.pitch = settings.pitch;
-                
-                // Track progress
-                let startTime = Date.now();
-                const estimatedDuration = (settings.text.length / 15) * 1000;
-                
-                const progressInterval = setInterval(() => {
-                    const elapsed = Date.now() - startTime;
-                    const progress = Math.min(99, (elapsed / estimatedDuration) * 100);
-                    progressFill.style.width = `${progress}%`;
-                    progressText.textContent = `${Math.floor(progress)}%`;
-                }, 100);
-                
-                utterance.onend = () => {
-                    clearInterval(progressInterval);
-                    progressFill.style.width = '100%';
-                    progressText.textContent = '100%';
-                    setTimeout(resolve, 500);
-                };
-                
-                utterance.onerror = () => {
-                    clearInterval(progressInterval);
-                    resolve();
-                };
-                
-                // Speak
-                speechSynthesis.speak(utterance);
-            });
-        }
-        
-        async function generateQAAudio(settings, progressFill, progressText) {
-            return new Promise((resolve) => {
-                const totalParts = settings.dialogues.length * settings.repeat;
-                let completedParts = 0;
-                
-                function speakNext() {
-                    if (completedParts >= totalParts) {
-                        progressFill.style.width = '100%';
-                        progressText.textContent = '100%';
-                        setTimeout(resolve, 500);
-                        return;
-                    }
-                    
-                    const dialogueIndex = completedParts % settings.dialogues.length;
-                    const dialogue = settings.dialogues[dialogueIndex];
-                    const isQuestion = dialogue.speaker === 'Q';
-                    
-                    const utterance = new SpeechSynthesisUtterance(dialogue.content);
-                    utterance.voice = isQuestion ? settings.voiceQ : settings.voiceA;
-                    utterance.rate = isQuestion ? settings.speedQ : settings.speedA;
-                    
-                    utterance.onend = () => {
-                        completedParts++;
-                        const progress = (completedParts / totalParts) * 100;
-                        progressFill.style.width = `${progress}%`;
-                        progressText.textContent = `${Math.floor(progress)}%`;
-                        
-                        // Small pause between utterances
-                        setTimeout(speakNext, 300);
+                    // Download buttons
+                    document.getElementById('single-download-audio').onclick = function() {
+                        const link = document.createElement('a');
+                        link.href = result.audioUrl;
+                        link.download = 'story_audio.mp3';
+                        link.click();
                     };
                     
-                    utterance.onerror = () => {
-                        completedParts++;
-                        const progress = (completedParts / totalParts) * 100;
-                        progressFill.style.width = `${progress}%`;
-                        progressText.textContent = `${Math.floor(progress)}%`;
-                        setTimeout(speakNext, 300);
+                    document.getElementById('single-download-srt').onclick = function() {
+                        const blob = new Blob([result.subtitles], { type: 'text/srt' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = 'subtitles.srt';
+                        link.click();
                     };
-                    
-                    speechSynthesis.speak(utterance);
-                }
-                
-                // Start speaking
-                speakNext();
-            });
-        }
-        
-        async function generateMultiCharAudio(settings, progressFill, progressText) {
-            return new Promise((resolve) => {
-                const totalDialogues = settings.dialogues.length;
-                let completedDialogues = 0;
-                
-                function speakNext() {
-                    if (completedDialogues >= totalDialogues) {
-                        progressFill.style.width = '100%';
-                        progressText.textContent = '100%';
-                        setTimeout(resolve, 500);
-                        return;
-                    }
-                    
-                    const dialogue = settings.dialogues[completedDialogues];
-                    const charSettings = settings.charSettings[dialogue.speaker] || { speed: 1.0, voice: voices[0] };
-                    
-                    const utterance = new SpeechSynthesisUtterance(dialogue.content);
-                    utterance.voice = charSettings.voice;
-                    utterance.rate = charSettings.speed;
-                    
-                    utterance.onend = () => {
-                        completedDialogues++;
-                        const progress = (completedDialogues / totalDialogues) * 100;
-                        progressFill.style.width = `${progress}%`;
-                        progressText.textContent = `${Math.floor(progress)}%`;
-                        
-                        // Small pause between utterances
-                        setTimeout(speakNext, 300);
-                    };
-                    
-                    utterance.onerror = () => {
-                        completedDialogues++;
-                        const progress = (completedDialogues / totalDialogues) * 100;
-                        progressFill.style.width = `${progress}%`;
-                        progressText.textContent = `${Math.floor(progress)}%`;
-                        setTimeout(speakNext, 300);
-                    };
-                    
-                    speechSynthesis.speak(utterance);
-                }
-                
-                // Start speaking
-                speakNext();
-            });
-        }
-        
-        function generateStatsAndSubtitles(mode, originalText, settings) {
-            // Generate stats
-            const wordCount = originalText.split(/\s+/).filter(w => w.length > 0).length;
-            const charCount = originalText.length;
-            
-            let stats = '';
-            let subtitles = '';
-            
-            if (mode === 'standard') {
-                stats = `Text processed: ${wordCount} words, ${charCount} characters\n`;
-                stats += `Speed: ${settings.speed}x, Volume: ${settings.volume}, Pitch: ${settings.pitch}\n`;
-                stats += `Voice: ${settings.voice?.name || 'Default'}`;
-                
-                subtitles = generateSubtitles(originalText);
-                
-            } else if (mode === 'qa') {
-                stats = `Q&A pairs: ${settings.dialogues.length}\n`;
-                stats += `Repeat: ${settings.repeat}x\n`;
-                stats += `Question speed: ${settings.speedQ}x, Answer speed: ${settings.speedA}x\n`;
-                stats += `Question voice: ${settings.voiceQ.name}\n`;
-                stats += `Answer voice: ${settings.voiceA.name}`;
-                
-                subtitles = generateQASubtitles(settings.dialogues, settings.repeat);
-                
-            } else if (mode === 'multichar') {
-                stats = `Characters: ${settings.dialogues.length} lines\n`;
-                stats += `Characters used: ${Object.keys(settings.charSettings).join(', ')}\n`;
-                stats += `Total words: ${wordCount}`;
-                
-                subtitles = generateMultiCharSubtitles(settings.dialogues);
-            }
-            
-            // Update UI
-            document.getElementById(`${mode}-stats`).textContent = stats;
-            document.getElementById(`${mode}-subtitles`).textContent = subtitles;
-        }
-        
-        function generateSubtitles(text) {
-            const lines = text.split('\n').filter(line => line.trim());
-            let srtContent = '';
-            let currentTime = 0;
-            
-            lines.forEach((line, index) => {
-                const startTime = currentTime;
-                const duration = Math.max(2, line.length / 10);
-                const endTime = startTime + duration;
-                
-                srtContent += `${index + 1}\n`;
-                srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
-                srtContent += `${line.trim()}\n\n`;
-                
-                currentTime = endTime + 0.5;
-            });
-            
-            return srtContent;
-        }
-        
-        function generateQASubtitles(dialogues, repeat) {
-            let srtContent = '';
-            let currentTime = 0;
-            let subtitleIndex = 1;
-            
-            for (let r = 0; r < repeat; r++) {
-                dialogues.forEach(dialogue => {
-                    const startTime = currentTime;
-                    const duration = Math.max(2, dialogue.content.length / 10);
-                    const endTime = startTime + duration;
-                    
-                    srtContent += `${subtitleIndex}\n`;
-                    srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
-                    srtContent += `${dialogue.speaker}: ${dialogue.original}\n\n`;
-                    
-                    currentTime = endTime + 0.5;
-                    subtitleIndex++;
                 });
-            }
-            
-            return srtContent;
-        }
-        
-        function generateMultiCharSubtitles(dialogues) {
-            let srtContent = '';
-            let currentTime = 0;
-            
-            dialogues.forEach((dialogue, index) => {
-                const startTime = currentTime;
-                const duration = Math.max(2, dialogue.content.length / 10);
-                const endTime = startTime + duration;
-                
-                srtContent += `${index + 1}\n`;
-                srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
-                srtContent += `${dialogue.speaker}: ${dialogue.original}\n\n`;
-                
-                currentTime = endTime + 0.5;
             });
             
-            return srtContent;
-        }
-        
-        function formatTime(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = Math.floor(seconds % 60);
-            const millis = Math.floor((seconds % 1) * 1000);
+            // Multi Character Tab
+            document.getElementById('multi-generate').addEventListener('click', function() {
+                const text = document.getElementById('multi-text').value;
+                
+                if (!text.trim()) {
+                    alert(currentLanguage === 'vi' ? 'Vui lòng nhập nội dung văn bản' : 'Please enter text content');
+                    return;
+                }
+                
+                // Get character settings
+                const charSettings = {
+                    1: {
+                        language: document.querySelector('.multi-char-language[data-char="1"]').value,
+                        voice: document.querySelector('.multi-char-voice[data-char="1"]').value,
+                        rate: document.querySelector('.multi-char-rate[data-char="1"]').value
+                    },
+                    2: {
+                        language: document.querySelector('.multi-char-language[data-char="2"]').value,
+                        voice: document.querySelector('.multi-char-voice[data-char="2"]').value,
+                        rate: document.querySelector('.multi-char-rate[data-char="2"]').value
+                    },
+                    3: {
+                        language: document.querySelector('.multi-char-language[data-char="3"]').value,
+                        voice: document.querySelector('.multi-char-voice[data-char="3"]').value,
+                        rate: document.querySelector('.multi-char-rate[data-char="3"]').value
+                    }
+                };
+                
+                // Show loading
+                document.getElementById('multi-loading').style.display = 'block';
+                document.getElementById('multi-results').style.display = 'none';
+                
+                // Simulate processing
+                setTimeout(() => {
+                    document.getElementById('multi-loading').style.display = 'none';
+                    document.getElementById('multi-results').style.display = 'block';
+                    
+                    // Generate fake audio URL
+                    const audioBlob = new Blob([], { type: 'audio/mpeg' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    
+                    // Parse dialogue for subtitles
+                    const lines = text.split('\n');
+                    let subtitles = '';
+                    let time = 0;
+                    
+                    lines.forEach((line, index) => {
+                        if (line.trim()) {
+                            subtitles += `${index + 1}\n`;
+                            subtitles += `00:00:${time.toString().padStart(3, '0')},000 --> 00:00:${(time + 5).toString().padStart(3, '0')},000\n`;
+                            subtitles += `${line.trim()}\n\n`;
+                            time += 5;
+                        }
+                    });
+                    
+                    const audioPlayer = document.getElementById('multi-audio-player');
+                    audioPlayer.src = audioUrl;
+                    
+                    document.getElementById('multi-status').textContent = 
+                        currentLanguage === 'vi' ? '✅ Hoàn thành! Bấm vào nút phát để nghe' : '✅ Complete! Click play to listen';
+                    document.getElementById('multi-subtitles').textContent = subtitles;
+                    
+                    // Download buttons
+                    document.getElementById('multi-download-audio').onclick = function() {
+                        const link = document.createElement('a');
+                        link.href = audioUrl;
+                        link.download = 'multi_character_story.mp3';
+                        link.click();
+                    };
+                    
+                    document.getElementById('multi-download-srt').onclick = function() {
+                        const blob = new Blob([subtitles], { type: 'text/srt' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = 'multi_character_subtitles.srt';
+                        link.click();
+                    };
+                }, 3000);
+            });
             
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')},${millis.toString().padStart(3, '0')}`;
-        }
-        
-        function downloadSRT(mode) {
-            const subtitleBox = document.getElementById(`${mode}-subtitles`);
-            const content = subtitleBox.textContent;
+            // Q&A Tab
+            document.getElementById('qa-generate').addEventListener('click', function() {
+                const text = document.getElementById('qa-text').value;
+                
+                if (!text.trim()) {
+                    alert(currentLanguage === 'vi' ? 'Vui lòng nhập nội dung văn bản' : 'Please enter text content');
+                    return;
+                }
+                
+                // Show loading
+                document.getElementById('qa-loading').style.display = 'block';
+                document.getElementById('qa-results').style.display = 'none';
+                
+                // Simulate processing
+                setTimeout(() => {
+                    document.getElementById('qa-loading').style.display = 'none';
+                    document.getElementById('qa-results').style.display = 'block';
+                    
+                    // Generate fake audio URL
+                    const audioBlob = new Blob([], { type: 'audio/mpeg' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    
+                    // Parse Q&A for subtitles
+                    const lines = text.split('\n');
+                    let subtitles = '';
+                    let time = 0;
+                    
+                    lines.forEach((line, index) => {
+                        if (line.trim()) {
+                            subtitles += `${index + 1}\n`;
+                            subtitles += `00:00:${time.toString().padStart(3, '0')},000 --> 00:00:${(time + 3).toString().padStart(3, '0')},000\n`;
+                            subtitles += `${line.trim()}\n\n`;
+                            time += 3;
+                        }
+                    });
+                    
+                    const audioPlayer = document.getElementById('qa-audio-player');
+                    audioPlayer.src = audioUrl;
+                    
+                    document.getElementById('qa-status').textContent = 
+                        currentLanguage === 'vi' ? '✅ Hoàn thành! Bấm vào nút phát để nghe' : '✅ Complete! Click play to listen';
+                    document.getElementById('qa-subtitles').textContent = subtitles;
+                    
+                    // Download buttons
+                    document.getElementById('qa-download-audio').onclick = function() {
+                        const link = document.createElement('a');
+                        link.href = audioUrl;
+                        link.download = 'qa_dialogue.mp3';
+                        link.click();
+                    };
+                    
+                    document.getElementById('qa-download-srt').onclick = function() {
+                        const blob = new Blob([subtitles], { type: 'text/srt' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = 'qa_subtitles.srt';
+                        link.click();
+                    };
+                }, 2500);
+            });
             
-            if (!content || content.includes('will appear here')) {
-                showNotification('No subtitles to download', 'error');
-                return;
-            }
+            // Initialize Audio Players
+            const audioPlayers = document.querySelectorAll('audio');
+            audioPlayers.forEach(player => {
+                new AudioPlayer(player);
+            });
             
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${mode}-subtitles.srt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            // Sample Data Button (for demo)
+            const sampleButtons = `
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-secondary me-2" onclick="loadSample('single')">Tải mẫu 1 nhân vật</button>
+                    <button class="btn btn-sm btn-outline-secondary me-2" onclick="loadSample('multi')">Tải mẫu đa nhân vật</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="loadSample('qa')">Tải mẫu hỏi đáp</button>
+                </div>
+            `;
             
-            showNotification('SRT file downloaded', 'success');
-        }
-        
-        function downloadAudio(mode) {
-            const audioBlob = window[`${mode}AudioBlob`];
-            if (!audioBlob) {
-                showNotification('No audio to download', 'error');
-                return;
-            }
+            document.getElementById('single-text').parentNode.innerHTML += sampleButtons;
+            document.getElementById('multi-text').parentNode.innerHTML += sampleButtons.replace(/loadSample\('(\w+)'\)/g, "loadSample('$1')");
+            document.getElementById('qa-text').parentNode.innerHTML += sampleButtons.replace(/loadSample\('(\w+)'\)/g, "loadSample('$1')");
             
-            const url = URL.createObjectURL(audioBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${mode}-audio.webm`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showNotification('Audio file downloaded', 'success');
-        }
-        
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', init);
+            // Load sample data function
+            window.loadSample = function(type) {
+                const samples = {
+                    single: "Xin chào! Đây là bản demo của công cụ Text to Speech.\n\nCông cụ này giúp bạn chuyển văn bản thành giọng nói tự nhiên.\n\nBạn có thể điều chỉnh tốc độ, cao độ và âm lượng theo ý muốn.",
+                    multi: "CHAR1: Xin chào, tôi là nhân vật số 1.\nCHAR2: Chào bạn, tôi là nhân vật số 2.\nCHAR1: Hôm nay chúng ta sẽ thảo luận về công nghệ Text to Speech.\nCHAR2: Đó là một công nghệ rất thú vị và hữu ích.\nNARRATOR: Cuộc trò chuyện tiếp tục với nhiều chủ đề hấp dẫn.",
+                    qa: "Q: Text to Speech là gì?\nA: Text to Speech là công nghệ chuyển đổi văn bản thành giọng nói.\n\nQ: Công cụ này có những tính năng gì?\nA: Công cụ hỗ trợ nhiều ngôn ngữ, giọng đọc, và tạo phụ đề tự động.\n\nQ: Làm thế nào để sử dụng?\nA: Chỉ cần nhập văn bản, chọn giọng đọc và bấm nút tạo audio."
+                };
+                
+                if (type === 'single') {
+                    document.getElementById('single-text').value = samples.single;
+                } else if (type === 'multi') {
+                    document.getElementById('multi-text').value = samples.multi;
+                } else if (type === 'qa') {
+                    document.getElementById('qa-text').value = samples.qa;
+                }
+            };
+        });
     </script>
 </body>
 </html>
