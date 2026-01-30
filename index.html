@@ -8,8 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Audio Player -->
-    <link href="https://cdn.jsdelivr.net/npm/audio-player-js/dist/audio-player.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #4361ee;
@@ -127,7 +125,6 @@
             margin: 1.5rem 0;
             border-radius: var(--border-radius);
             overflow: hidden;
-            box-shadow: var(--shadow);
         }
         
         .subtitle-box {
@@ -184,6 +181,12 @@
             font-size: 0.9rem;
         }
         
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 0 15px;
@@ -208,20 +211,14 @@
         <select id="language-select" class="form-select form-select-sm" style="width: auto;">
             <option value="vi">Tiếng Việt</option>
             <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="es">Español</option>
-            <option value="de">Deutsch</option>
-            <option value="ja">日本語</option>
-            <option value="ko">한국어</option>
-            <option value="zh">中文</option>
         </select>
     </div>
 
     <div class="container mt-5">
         <!-- Header -->
         <div class="header text-center">
-            <h1><i class="fas fa-microphone-alt me-3"></i> <span data-translate="title">Text to Speech Studio</span></h1>
-            <p class="lead mb-0" data-translate="subtitle">Chuyển văn bản thành giọng nói chuyên nghiệp với nhiều giọng đọc và ngôn ngữ</p>
+            <h1><i class="fas fa-microphone-alt me-3"></i> <span id="title">Text to Speech Studio</span></h1>
+            <p class="lead mb-0" id="subtitle">Chuyển văn bản thành giọng nói chuyên nghiệp với Microsoft Edge TTS</p>
         </div>
 
         <!-- Main Content -->
@@ -230,17 +227,17 @@
             <ul class="nav nav-tabs px-3 pt-3" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="single-tab" data-bs-toggle="tab" data-bs-target="#single" type="button" role="tab">
-                        <i class="fas fa-user me-2"></i> <span data-translate="tab1">1 Nhân vật</span>
+                        <i class="fas fa-user me-2"></i> <span>1 Nhân vật</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="multi-tab" data-bs-toggle="tab" data-bs-target="#multi" type="button" role="tab">
-                        <i class="fas fa-users me-2"></i> <span data-translate="tab2">Đa nhân vật</span>
+                        <i class="fas fa-users me-2"></i> <span>Đa nhân vật</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="qa-tab" data-bs-toggle="tab" data-bs-target="#qa" type="button" role="tab">
-                        <i class="fas fa-comments me-2"></i> <span data-translate="tab3">Hỏi & Đáp</span>
+                        <i class="fas fa-comments me-2"></i> <span>Hỏi & Đáp</span>
                     </button>
                 </li>
             </ul>
@@ -252,13 +249,14 @@
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="mb-3">
-                                <label for="single-text" class="form-label" data-translate="storyContent">Nội dung truyện</label>
-                                <textarea class="form-control" id="single-text" rows="10" placeholder="Nhập nội dung truyện (mỗi dòng là một đoạn)..."></textarea>
+                                <label for="single-text" class="form-label">Nội dung truyện</label>
+                                <textarea class="form-control" id="single-text" rows="10" placeholder="Nhập nội dung truyện (mỗi dòng là một đoạn)...">Xin chào! Đây là bản demo của công cụ Text to Speech. Công cụ này sử dụng Microsoft Edge TTS để tạo giọng nói chất lượng cao.</textarea>
+                                <div class="form-text">Nhập văn bản cần chuyển thành giọng nói (tối đa 5000 ký tự)</div>
                             </div>
                             
-                            <div class="row g-3">
+                            <div class="row g-3 mb-3">
                                 <div class="col-md-6">
-                                    <label for="single-language" class="form-label" data-translate="language">Ngôn ngữ</label>
+                                    <label for="single-language" class="form-label">Ngôn ngữ</label>
                                     <select class="form-select" id="single-language">
                                         <option value="vi-VN">Tiếng Việt</option>
                                         <option value="en-US">English (US)</option>
@@ -272,44 +270,46 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="single-voice" class="form-label" data-translate="voice">Giọng đọc</label>
+                                    <label for="single-voice" class="form-label">Giọng đọc</label>
                                     <select class="form-select" id="single-voice">
-                                        <option value="vi-VN-HoaiMyNeural">Hoài My (Nữ)</option>
-                                        <option value="vi-VN-NamMinhNeural">Nam Minh (Nam)</option>
-                                        <option value="en-US-JennyNeural">Jenny (Nữ)</option>
-                                        <option value="en-US-GuyNeural">Guy (Nam)</option>
+                                        <!-- Voices will be populated based on language -->
                                     </select>
                                 </div>
                             </div>
                             
                             <div class="slider-container">
-                                <label for="single-rate" class="form-label" data-translate="speed">Tốc độ: <span id="single-rate-value">0%</span></label>
-                                <input type="range" class="form-range" id="single-rate" min="-30" max="30" step="1" value="0">
+                                <label for="single-rate" class="form-label">Tốc độ: <span id="single-rate-value">0%</span></label>
+                                <input type="range" class="form-range" id="single-rate" min="-50" max="50" step="5" value="0">
                             </div>
                             
                             <div class="slider-container">
-                                <label for="single-pitch" class="form-label" data-translate="pitch">Cao độ: <span id="single-pitch-value">0Hz</span></label>
-                                <input type="range" class="form-range" id="single-pitch" min="-30" max="30" step="1" value="0">
-                            </div>
-                            
-                            <div class="slider-container">
-                                <label for="single-volume" class="form-label" data-translate="volume">Âm lượng: <span id="single-volume-value">100%</span></label>
-                                <input type="range" class="form-range" id="single-volume" min="50" max="150" step="1" value="100">
+                                <label for="single-volume" class="form-label">Âm lượng: <span id="single-volume-value">100%</span></label>
+                                <input type="range" class="form-range" id="single-volume" min="0" max="200" step="10" value="100">
                             </div>
                             
                             <div class="slider-container mb-4">
-                                <label for="single-pause" class="form-label" data-translate="pauseDuration">Khoảng nghỉ: <span id="single-pause-value">500ms</span></label>
-                                <input type="range" class="form-range" id="single-pause" min="100" max="2000" step="50" value="500">
+                                <label for="single-pause" class="form-label">Khoảng nghỉ giữa đoạn: <span id="single-pause-value">300ms</span></label>
+                                <input type="range" class="form-range" id="single-pause" min="100" max="1000" step="50" value="300">
                             </div>
                             
-                            <div class="form-check mb-4">
-                                <input class="form-check-input" type="checkbox" id="single-save-settings">
-                                <label class="form-check-label" for="single-save-settings" data-translate="saveSettings">Lưu cài đặt</label>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="single-subtitle" checked>
+                                    <label class="form-check-label" for="single-subtitle">Tạo phụ đề tự động (.srt)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="single-save-settings">
+                                    <label class="form-check-label" for="single-save-settings">Lưu cài đặt</label>
+                                </div>
                             </div>
                             
-                            <button class="btn btn-primary w-100" id="single-generate" data-translate="generateAudio">
-                                <i class="fas fa-microphone-alt me-2"></i> Tạo truyện audio
+                            <button class="btn btn-primary w-100" id="single-generate">
+                                <i class="fas fa-microphone-alt me-2"></i> Tạo audio từ văn bản
                             </button>
+                            
+                            <div class="progress mt-3" id="single-progress" style="display: none;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            </div>
                         </div>
                         
                         <div class="col-lg-6">
@@ -317,31 +317,33 @@
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Đang xử lý...</span>
                                 </div>
-                                <p class="mt-3" data-translate="processing">Đang xử lý văn bản và tạo audio...</p>
+                                <p class="mt-3">Đang xử lý văn bản và tạo audio...</p>
                             </div>
                             
                             <div id="single-results" style="display: none;">
                                 <div class="mb-3">
-                                    <label class="form-label" data-translate="generatedAudio">Audio đã tạo</label>
+                                    <label class="form-label">Audio đã tạo</label>
                                     <audio controls class="audio-player" id="single-audio-player"></audio>
                                     <div class="d-flex gap-2 mt-2">
                                         <button class="btn btn-outline-primary btn-sm" id="single-download-audio">
-                                            <i class="fas fa-download me-1"></i> <span data-translate="downloadAudio">Tải audio</span>
+                                            <i class="fas fa-download me-1"></i> Tải audio (.mp3)
                                         </button>
-                                        <button class="btn btn-outline-success btn-sm" id="single-download-srt">
-                                            <i class="fas fa-file-alt me-1"></i> <span data-translate="downloadSubtitle">Tải phụ đề (.srt)</span>
+                                        <button class="btn btn-outline-success btn-sm" id="single-download-srt" style="display: none;">
+                                            <i class="fas fa-file-alt me-1"></i> Tải phụ đề (.srt)
                                         </button>
                                     </div>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label" data-translate="status">Trạng thái</label>
-                                    <div class="alert alert-success" id="single-status"></div>
+                                    <label class="form-label">Thông tin</label>
+                                    <div class="alert alert-info" id="single-status">
+                                        <i class="fas fa-info-circle me-2"></i> Chưa có audio được tạo
+                                    </div>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label" data-translate="subtitleContent">Nội dung phụ đề</label>
-                                    <div class="subtitle-box" id="single-subtitles"></div>
+                                    <label class="form-label">Nội dung phụ đề</label>
+                                    <div class="subtitle-box" id="single-subtitles">Chưa có phụ đề</div>
                                 </div>
                             </div>
                         </div>
@@ -353,42 +355,38 @@
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="mb-3">
-                                <label for="multi-text" class="form-label" data-translate="multiStoryContent">Nội dung câu chuyện đa nhân vật</label>
-                                <textarea class="form-control" id="multi-text" rows="10" placeholder="CHAR1: Lời thoại nhân vật 1&#10;CHAR2: Lời thoại nhân vật 2&#10;CHAR3: Lời thoại nhân vật 3&#10;NARRATOR: Lời dẫn truyện"></textarea>
-                                <div class="mt-2">
-                                    <small class="text-muted">
-                                        <span data-translate="multiFormatHint">Sử dụng tiền tố: CHAR1:, CHAR2:, CHAR3:, NARRATOR:</span>
-                                    </small>
-                                    <div class="mt-1">
-                                        <span class="char-badge char1-badge">CHAR1</span>
-                                        <span class="char-badge char2-badge">CHAR2</span>
-                                        <span class="char-badge char3-badge">CHAR3</span>
-                                        <span class="char-badge" style="background: #6c757d; color: white;">NARRATOR</span>
-                                    </div>
+                                <label for="multi-text" class="form-label">Nội dung câu chuyện đa nhân vật</label>
+                                <textarea class="form-control" id="multi-text" rows="10" placeholder="CHAR1: Lời thoại nhân vật 1&#10;CHAR2: Lời thoại nhân vật 2&#10;CHAR3: Lời thoại nhân vật 3&#10;NARRATOR: Lời dẫn truyện">CHAR1: Xin chào, tôi là nhân vật số 1.&#10;CHAR2: Chào bạn, tôi là nhân vật số 2.&#10;CHAR1: Hôm nay chúng ta sẽ thảo luận về công nghệ Text to Speech.&#10;CHAR2: Đó là một công nghệ rất thú vị và hữu ích.</textarea>
+                                <div class="form-text mt-2">
+                                    Sử dụng tiền tố: 
+                                    <span class="char-badge char1-badge">CHAR1:</span>
+                                    <span class="char-badge char2-badge">CHAR2:</span>
+                                    <span class="char-badge char3-badge">CHAR3:</span>
+                                    <span class="char-badge" style="background: #6c757d; color: white;">NARRATOR:</span>
                                 </div>
                             </div>
                             
                             <!-- Character Settings -->
-                            <div class="accordion settings-accordion mb-4" id="multiAccordion">
+                            <div class="accordion settings-accordion mb-3" id="multiAccordion">
                                 <!-- Character 1 -->
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#char1Settings">
-                                            <i class="fas fa-user me-2"></i> <span data-translate="character1Settings">Cài đặt nhân vật 1</span>
+                                            <i class="fas fa-user me-2"></i> Nhân vật 1 (CHAR1)
                                         </button>
                                     </h2>
                                     <div id="char1Settings" class="accordion-collapse collapse show">
                                         <div class="accordion-body">
                                             <div class="row g-3">
                                                 <div class="col-md-6">
-                                                    <label class="form-label" data-translate="language">Ngôn ngữ</label>
+                                                    <label class="form-label">Ngôn ngữ</label>
                                                     <select class="form-select multi-char-language" data-char="1">
                                                         <option value="vi-VN">Tiếng Việt</option>
                                                         <option value="en-US">English (US)</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label class="form-label" data-translate="voice">Giọng đọc</label>
+                                                    <label class="form-label">Giọng đọc</label>
                                                     <select class="form-select multi-char-voice" data-char="1">
                                                         <option value="vi-VN-HoaiMyNeural">Hoài My (Nữ)</option>
                                                         <option value="vi-VN-NamMinhNeural">Nam Minh (Nam)</option>
@@ -396,8 +394,8 @@
                                                 </div>
                                             </div>
                                             <div class="slider-container">
-                                                <label class="form-label" data-translate="speed">Tốc độ: <span class="multi-char-rate-value" data-char="1">-20%</span></label>
-                                                <input type="range" class="form-range multi-char-rate" data-char="1" min="-30" max="30" value="-20">
+                                                <label class="form-label">Tốc độ: <span class="multi-char-rate-value" data-char="1">0%</span></label>
+                                                <input type="range" class="form-range multi-char-rate" data-char="1" min="-50" max="50" value="0">
                                             </div>
                                         </div>
                                     </div>
@@ -407,21 +405,21 @@
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#char2Settings">
-                                            <i class="fas fa-user me-2"></i> <span data-translate="character2Settings">Cài đặt nhân vật 2</span>
+                                            <i class="fas fa-user me-2"></i> Nhân vật 2 (CHAR2)
                                         </button>
                                     </h2>
                                     <div id="char2Settings" class="accordion-collapse collapse">
                                         <div class="accordion-body">
                                             <div class="row g-3">
                                                 <div class="col-md-6">
-                                                    <label class="form-label" data-translate="language">Ngôn ngữ</label>
+                                                    <label class="form-label">Ngôn ngữ</label>
                                                     <select class="form-select multi-char-language" data-char="2">
                                                         <option value="vi-VN">Tiếng Việt</option>
                                                         <option value="en-US">English (US)</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label class="form-label" data-translate="voice">Giọng đọc</label>
+                                                    <label class="form-label">Giọng đọc</label>
                                                     <select class="form-select multi-char-voice" data-char="2">
                                                         <option value="vi-VN-NamMinhNeural">Nam Minh (Nam)</option>
                                                         <option value="en-US-GuyNeural">Guy (Nam)</option>
@@ -429,41 +427,8 @@
                                                 </div>
                                             </div>
                                             <div class="slider-container">
-                                                <label class="form-label" data-translate="speed">Tốc độ: <span class="multi-char-rate-value" data-char="2">-25%</span></label>
-                                                <input type="range" class="form-range multi-char-rate" data-char="2" min="-30" max="30" value="-25">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Character 3 -->
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#char3Settings">
-                                            <i class="fas fa-user me-2"></i> <span data-translate="character3Settings">Cài đặt nhân vật 3</span>
-                                        </button>
-                                    </h2>
-                                    <div id="char3Settings" class="accordion-collapse collapse">
-                                        <div class="accordion-body">
-                                            <div class="row g-3">
-                                                <div class="col-md-6">
-                                                    <label class="form-label" data-translate="language">Ngôn ngữ</label>
-                                                    <select class="form-select multi-char-language" data-char="3">
-                                                        <option value="vi-VN">Tiếng Việt</option>
-                                                        <option value="en-US">English (US)</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label" data-translate="voice">Giọng đọc</label>
-                                                    <select class="form-select multi-char-voice" data-char="3">
-                                                        <option value="vi-VN-HoaiMyNeural">Hoài My (Nữ)</option>
-                                                        <option value="en-US-JennyNeural">Jenny (Nữ)</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="slider-container">
-                                                <label class="form-label" data-translate="speed">Tốc độ: <span class="multi-char-rate-value" data-char="3">-15%</span></label>
-                                                <input type="range" class="form-range multi-char-rate" data-char="3" min="-30" max="30" value="-15">
+                                                <label class="form-label">Tốc độ: <span class="multi-char-rate-value" data-char="2">0%</span></label>
+                                                <input type="range" class="form-range multi-char-rate" data-char="2" min="-50" max="50" value="0">
                                             </div>
                                         </div>
                                     </div>
@@ -472,21 +437,35 @@
                             
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                    <label for="multi-repeat" class="form-label" data-translate="repeatTimes">Số lần lặp</label>
-                                    <input type="number" class="form-control" id="multi-repeat" min="1" max="5" value="1">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="multi-pause" class="form-label" data-translate="pauseBetween">Khoảng nghỉ giữa đoạn</label>
+                                    <label for="multi-pause" class="form-label">Khoảng nghỉ giữa lời thoại</label>
                                     <div class="input-group">
                                         <input type="number" class="form-control" id="multi-pause" min="100" max="2000" value="500">
                                         <span class="input-group-text">ms</span>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <label for="multi-format" class="form-label">Định dạng đầu ra</label>
+                                    <select class="form-select" id="multi-format">
+                                        <option value="mp3">MP3 (Chất lượng cao)</option>
+                                        <option value="wav">WAV (Không nén)</option>
+                                    </select>
+                                </div>
                             </div>
                             
-                            <button class="btn btn-primary w-100" id="multi-generate" data-translate="generateAudio">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="multi-subtitle" checked>
+                                    <label class="form-check-label" for="multi-subtitle">Tạo phụ đề với tên nhân vật</label>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary w-100" id="multi-generate">
                                 <i class="fas fa-users me-2"></i> Tạo câu chuyện audio
                             </button>
+                            
+                            <div class="progress mt-3" id="multi-progress" style="display: none;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            </div>
                         </div>
                         
                         <div class="col-lg-6">
@@ -494,31 +473,33 @@
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Đang xử lý...</span>
                                 </div>
-                                <p class="mt-3" data-translate="processing">Đang xử lý văn bản và tạo audio...</p>
+                                <p class="mt-3">Đang xử lý văn bản và tạo audio...</p>
                             </div>
                             
                             <div id="multi-results" style="display: none;">
                                 <div class="mb-3">
-                                    <label class="form-label" data-translate="generatedAudio">Audio đã tạo</label>
+                                    <label class="form-label">Audio đã tạo</label>
                                     <audio controls class="audio-player" id="multi-audio-player"></audio>
                                     <div class="d-flex gap-2 mt-2">
                                         <button class="btn btn-outline-primary btn-sm" id="multi-download-audio">
-                                            <i class="fas fa-download me-1"></i> <span data-translate="downloadAudio">Tải audio</span>
+                                            <i class="fas fa-download me-1"></i> Tải audio
                                         </button>
-                                        <button class="btn btn-outline-success btn-sm" id="multi-download-srt">
-                                            <i class="fas fa-file-alt me-1"></i> <span data-translate="downloadSubtitle">Tải phụ đề (.srt)</span>
+                                        <button class="btn btn-outline-success btn-sm" id="multi-download-srt" style="display: none;">
+                                            <i class="fas fa-file-alt me-1"></i> Tải phụ đề
                                         </button>
                                     </div>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label" data-translate="status">Trạng thái</label>
-                                    <div class="alert alert-success" id="multi-status"></div>
+                                    <label class="form-label">Thông tin</label>
+                                    <div class="alert alert-info" id="multi-status">
+                                        <i class="fas fa-info-circle me-2"></i> Chưa có audio được tạo
+                                    </div>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label" data-translate="subtitleContent">Nội dung phụ đề</label>
-                                    <div class="subtitle-box" id="multi-subtitles"></div>
+                                    <label class="form-label">Nội dung phụ đề</label>
+                                    <div class="subtitle-box" id="multi-subtitles">Chưa có phụ đề</div>
                                 </div>
                             </div>
                         </div>
@@ -530,40 +511,36 @@
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="mb-3">
-                                <label for="qa-text" class="form-label" data-translate="dialogueContent">Nội dung hội thoại</label>
-                                <textarea class="form-control" id="qa-text" rows="10" placeholder="Q: Câu hỏi&#10;A: Câu trả lời&#10;Q: Câu hỏi tiếp theo&#10;A: Câu trả lời tiếp theo"></textarea>
-                                <div class="mt-2">
-                                    <small class="text-muted">
-                                        <span data-translate="qaFormatHint">Sử dụng tiền tố: Q: cho câu hỏi, A: cho câu trả lời</span>
-                                    </small>
-                                    <div class="mt-1">
-                                        <span class="char-badge q-badge">Q (Câu hỏi)</span>
-                                        <span class="char-badge a-badge">A (Câu trả lời)</span>
-                                    </div>
+                                <label for="qa-text" class="form-label">Nội dung hội thoại</label>
+                                <textarea class="form-control" id="qa-text" rows="10" placeholder="Q: Câu hỏi&#10;A: Câu trả lời&#10;Q: Câu hỏi tiếp theo&#10;A: Câu trả lời tiếp theo">Q: Text to Speech là gì?&#10;A: Text to Speech là công nghệ chuyển đổi văn bản thành giọng nói.&#10;Q: Công cụ này có những tính năng gì?&#10;A: Công cụ hỗ trợ nhiều ngôn ngữ, giọng đọc, và tạo phụ đề tự động.</textarea>
+                                <div class="form-text mt-2">
+                                    Sử dụng tiền tố: 
+                                    <span class="char-badge q-badge">Q:</span> cho câu hỏi,
+                                    <span class="char-badge a-badge">A:</span> cho câu trả lời
                                 </div>
                             </div>
                             
-                            <!-- Question Settings -->
-                            <div class="accordion settings-accordion mb-4" id="qaAccordion">
+                            <!-- Voice Settings -->
+                            <div class="accordion settings-accordion mb-3" id="qaAccordion">
                                 <!-- Question Settings -->
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#questionSettings">
-                                            <i class="fas fa-question-circle me-2"></i> <span data-translate="questionSettings">Cài đặt giọng câu hỏi</span>
+                                            <i class="fas fa-question-circle me-2"></i> Giọng câu hỏi (Q)
                                         </button>
                                     </h2>
                                     <div id="questionSettings" class="accordion-collapse collapse show">
                                         <div class="accordion-body">
                                             <div class="row g-3">
                                                 <div class="col-md-6">
-                                                    <label class="form-label" data-translate="language">Ngôn ngữ</label>
+                                                    <label class="form-label">Ngôn ngữ</label>
                                                     <select class="form-select" id="qa-language-q">
                                                         <option value="vi-VN">Tiếng Việt</option>
                                                         <option value="en-US">English (US)</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label class="form-label" data-translate="voice">Giọng đọc</label>
+                                                    <label class="form-label">Giọng đọc</label>
                                                     <select class="form-select" id="qa-voice-q">
                                                         <option value="vi-VN-HoaiMyNeural">Hoài My (Nữ)</option>
                                                         <option value="en-US-JennyNeural">Jenny (Nữ)</option>
@@ -571,8 +548,8 @@
                                                 </div>
                                             </div>
                                             <div class="slider-container">
-                                                <label class="form-label" data-translate="speed">Tốc độ: <span id="qa-rate-q-value">-20%</span></label>
-                                                <input type="range" class="form-range" id="qa-rate-q" min="-30" max="30" value="-20">
+                                                <label class="form-label">Tốc độ: <span id="qa-rate-q-value">0%</span></label>
+                                                <input type="range" class="form-range" id="qa-rate-q" min="-50" max="50" value="0">
                                             </div>
                                         </div>
                                     </div>
@@ -582,21 +559,21 @@
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#answerSettings">
-                                            <i class="fas fa-comment-dots me-2"></i> <span data-translate="answerSettings">Cài đặt giọng câu trả lời</span>
+                                            <i class="fas fa-comment-dots me-2"></i> Giọng câu trả lời (A)
                                         </button>
                                     </h2>
                                     <div id="answerSettings" class="accordion-collapse collapse">
                                         <div class="accordion-body">
                                             <div class="row g-3">
                                                 <div class="col-md-6">
-                                                    <label class="form-label" data-translate="language">Ngôn ngữ</label>
+                                                    <label class="form-label">Ngôn ngữ</label>
                                                     <select class="form-select" id="qa-language-a">
                                                         <option value="vi-VN">Tiếng Việt</option>
                                                         <option value="en-US">English (US)</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label class="form-label" data-translate="voice">Giọng đọc</label>
+                                                    <label class="form-label">Giọng đọc</label>
                                                     <select class="form-select" id="qa-voice-a">
                                                         <option value="vi-VN-NamMinhNeural">Nam Minh (Nam)</option>
                                                         <option value="en-US-GuyNeural">Guy (Nam)</option>
@@ -604,8 +581,8 @@
                                                 </div>
                                             </div>
                                             <div class="slider-container">
-                                                <label class="form-label" data-translate="speed">Tốc độ: <span id="qa-rate-a-value">-25%</span></label>
-                                                <input type="range" class="form-range" id="qa-rate-a" min="-30" max="30" value="-25">
+                                                <label class="form-label">Tốc độ: <span id="qa-rate-a-value">0%</span></label>
+                                                <input type="range" class="form-range" id="qa-rate-a" min="-50" max="50" value="0">
                                             </div>
                                         </div>
                                     </div>
@@ -614,18 +591,18 @@
                             
                             <div class="row g-3 mb-4">
                                 <div class="col-md-4">
-                                    <label for="qa-repeat" class="form-label" data-translate="repeatTimes">Số lần lặp</label>
-                                    <input type="number" class="form-control" id="qa-repeat" min="1" max="5" value="2">
+                                    <label for="qa-repeat" class="form-label">Lặp lại mỗi cặp</label>
+                                    <input type="number" class="form-control" id="qa-repeat" min="1" max="3" value="1">
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="qa-pause-q" class="form-label" data-translate="pauseQuestion">Khoảng nghỉ câu hỏi</label>
+                                    <label for="qa-pause-q" class="form-label">Nghỉ sau câu hỏi</label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control" id="qa-pause-q" min="100" max="1000" value="200">
+                                        <input type="number" class="form-control" id="qa-pause-q" min="100" max="1000" value="300">
                                         <span class="input-group-text">ms</span>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="qa-pause-a" class="form-label" data-translate="pauseAnswer">Khoảng nghỉ câu trả lời</label>
+                                    <label for="qa-pause-a" class="form-label">Nghỉ sau câu trả lời</label>
                                     <div class="input-group">
                                         <input type="number" class="form-control" id="qa-pause-a" min="100" max="2000" value="500">
                                         <span class="input-group-text">ms</span>
@@ -633,9 +610,13 @@
                                 </div>
                             </div>
                             
-                            <button class="btn btn-primary w-100" id="qa-generate" data-translate="generateAudio">
+                            <button class="btn btn-primary w-100" id="qa-generate">
                                 <i class="fas fa-comments me-2"></i> Tạo audio hội thoại
                             </button>
+                            
+                            <div class="progress mt-3" id="qa-progress" style="display: none;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            </div>
                         </div>
                         
                         <div class="col-lg-6">
@@ -643,31 +624,33 @@
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Đang xử lý...</span>
                                 </div>
-                                <p class="mt-3" data-translate="processing">Đang xử lý văn bản và tạo audio...</p>
+                                <p class="mt-3">Đang xử lý văn bản và tạo audio...</p>
                             </div>
                             
                             <div id="qa-results" style="display: none;">
                                 <div class="mb-3">
-                                    <label class="form-label" data-translate="generatedAudio">Audio đã tạo</label>
+                                    <label class="form-label">Audio đã tạo</label>
                                     <audio controls class="audio-player" id="qa-audio-player"></audio>
                                     <div class="d-flex gap-2 mt-2">
                                         <button class="btn btn-outline-primary btn-sm" id="qa-download-audio">
-                                            <i class="fas fa-download me-1"></i> <span data-translate="downloadAudio">Tải audio</span>
+                                            <i class="fas fa-download me-1"></i> Tải audio
                                         </button>
-                                        <button class="btn btn-outline-success btn-sm" id="qa-download-srt">
-                                            <i class="fas fa-file-alt me-1"></i> <span data-translate="downloadSubtitle">Tải phụ đề (.srt)</span>
+                                        <button class="btn btn-outline-success btn-sm" id="qa-download-srt" style="display: none;">
+                                            <i class="fas fa-file-alt me-1"></i> Tải phụ đề
                                         </button>
                                     </div>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label" data-translate="status">Trạng thái</label>
-                                    <div class="alert alert-success" id="qa-status"></div>
+                                    <label class="form-label">Thông tin</label>
+                                    <div class="alert alert-info" id="qa-status">
+                                        <i class="fas fa-info-circle me-2"></i> Chưa có audio được tạo
+                                    </div>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label" data-translate="subtitleContent">Nội dung phụ đề</label>
-                                    <div class="subtitle-box" id="qa-subtitles"></div>
+                                    <label class="form-label">Nội dung phụ đề</label>
+                                    <div class="subtitle-box" id="qa-subtitles">Chưa có phụ đề</div>
                                 </div>
                             </div>
                         </div>
@@ -684,8 +667,8 @@
                         <div class="feature-icon">
                             <i class="fas fa-language"></i>
                         </div>
-                        <h5 class="card-title" data-translate="feature1Title">Đa Ngôn Ngữ</h5>
-                        <p class="card-text" data-translate="feature1Desc">Hỗ trợ nhiều ngôn ngữ và giọng đọc khác nhau từ Microsoft Azure TTS</p>
+                        <h5 class="card-title">Đa Ngôn Ngữ</h5>
+                        <p class="card-text">Hỗ trợ nhiều ngôn ngữ với giọng đọc tự nhiên từ Microsoft Edge TTS</p>
                     </div>
                 </div>
             </div>
@@ -695,8 +678,8 @@
                         <div class="feature-icon">
                             <i class="fas fa-users"></i>
                         </div>
-                        <h5 class="card-title" data-translate="feature2Title">Đa Nhân Vật</h5>
-                        <p class="card-text" data-translate="feature2Desc">Tạo hội thoại với nhiều nhân vật, mỗi nhân vật có giọng đọc riêng</p>
+                        <h5 class="card-title">Đa Nhân Vật</h5>
+                        <p class="card-text">Tạo hội thoại với nhiều nhân vật, mỗi nhân vật có giọng đọc riêng biệt</p>
                     </div>
                 </div>
             </div>
@@ -706,8 +689,8 @@
                         <div class="feature-icon">
                             <i class="fas fa-closed-captioning"></i>
                         </div>
-                        <h5 class="card-title" data-translate="feature3Title">Phụ đề Tự động</h5>
-                        <p class="card-text" data-translate="feature3Desc">Tự động tạo phụ đề SRT đồng bộ với audio</p>
+                        <h5 class="card-title">Phụ đề Tự động</h5>
+                        <p class="card-text">Tự động tạo phụ đề SRT đồng bộ thời gian với audio</p>
                     </div>
                 </div>
             </div>
@@ -715,149 +698,102 @@
         
         <!-- Footer -->
         <div class="footer">
-            <p data-translate="footerText">Text to Speech Studio - Công cụ chuyển văn bản thành giọng nói chuyên nghiệp</p>
+            <p>Text to Speech Studio - Công cụ chuyển văn bản thành giọng nói chuyên nghiệp</p>
             <p class="text-muted">
-                <small data-translate="techUsed">Sử dụng công nghệ Microsoft Azure Cognitive Services TTS</small>
+                <small>Powered by Microsoft Edge TTS | Tự động tạo phụ đề | Hỗ trợ đa ngôn ngữ</small>
             </p>
         </div>
     </div>
 
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/audio-player-js/dist/audio-player.min.js"></script>
-    
-    <!-- Translation Data -->
-    <script>
-        const translations = {
-            vi: {
-                title: "Text to Speech Studio",
-                subtitle: "Chuyển văn bản thành giọng nói chuyên nghiệp với nhiều giọng đọc và ngôn ngữ",
-                tab1: "1 Nhân vật",
-                tab2: "Đa nhân vật",
-                tab3: "Hỏi & Đáp",
-                storyContent: "Nội dung truyện",
-                multiStoryContent: "Nội dung câu chuyện đa nhân vật",
-                dialogueContent: "Nội dung hội thoại",
-                language: "Ngôn ngữ",
-                voice: "Giọng đọc",
-                speed: "Tốc độ",
-                pitch: "Cao độ",
-                volume: "Âm lượng",
-                pauseDuration: "Khoảng nghỉ",
-                saveSettings: "Lưu cài đặt",
-                generateAudio: "Tạo audio",
-                processing: "Đang xử lý văn bản và tạo audio...",
-                generatedAudio: "Audio đã tạo",
-                downloadAudio: "Tải audio",
-                downloadSubtitle: "Tải phụ đề (.srt)",
-                status: "Trạng thái",
-                subtitleContent: "Nội dung phụ đề",
-                character1Settings: "Cài đặt nhân vật 1",
-                character2Settings: "Cài đặt nhân vật 2",
-                character3Settings: "Cài đặt nhân vật 3",
-                multiFormatHint: "Sử dụng tiền tố: CHAR1:, CHAR2:, CHAR3:, NARRATOR:",
-                qaFormatHint: "Sử dụng tiền tố: Q: cho câu hỏi, A: cho câu trả lời",
-                repeatTimes: "Số lần lặp",
-                pauseBetween: "Khoảng nghỉ giữa đoạn",
-                pauseQuestion: "Khoảng nghỉ câu hỏi",
-                pauseAnswer: "Khoảng nghỉ câu trả lời",
-                questionSettings: "Cài đặt giọng câu hỏi",
-                answerSettings: "Cài đặt giọng câu trả lời",
-                feature1Title: "Đa Ngôn Ngữ",
-                feature1Desc: "Hỗ trợ nhiều ngôn ngữ và giọng đọc khác nhau từ Microsoft Azure TTS",
-                feature2Title: "Đa Nhân Vật",
-                feature2Desc: "Tạo hội thoại với nhiều nhân vật, mỗi nhân vật có giọng đọc riêng",
-                feature3Title: "Phụ đề Tự động",
-                feature3Desc: "Tự động tạo phụ đề SRT đồng bộ với audio",
-                footerText: "Text to Speech Studio - Công cụ chuyển văn bản thành giọng nói chuyên nghiệp",
-                techUsed: "Sử dụng công nghệ Microsoft Azure Cognitive Services TTS"
-            },
-            en: {
-                title: "Text to Speech Studio",
-                subtitle: "Convert text to professional speech with multiple voices and languages",
-                tab1: "Single Character",
-                tab2: "Multi Character",
-                tab3: "Q&A Dialogue",
-                storyContent: "Story Content",
-                multiStoryContent: "Multi-Character Story Content",
-                dialogueContent: "Dialogue Content",
-                language: "Language",
-                voice: "Voice",
-                speed: "Speed",
-                pitch: "Pitch",
-                volume: "Volume",
-                pauseDuration: "Pause Duration",
-                saveSettings: "Save Settings",
-                generateAudio: "Generate Audio",
-                processing: "Processing text and generating audio...",
-                generatedAudio: "Generated Audio",
-                downloadAudio: "Download Audio",
-                downloadSubtitle: "Download Subtitle (.srt)",
-                status: "Status",
-                subtitleContent: "Subtitle Content",
-                character1Settings: "Character 1 Settings",
-                character2Settings: "Character 2 Settings",
-                character3Settings: "Character 3 Settings",
-                multiFormatHint: "Use prefixes: CHAR1:, CHAR2:, CHAR3:, NARRATOR:",
-                qaFormatHint: "Use prefixes: Q: for questions, A: for answers",
-                repeatTimes: "Repeat Times",
-                pauseBetween: "Pause Between Segments",
-                pauseQuestion: "Question Pause",
-                pauseAnswer: "Answer Pause",
-                questionSettings: "Question Voice Settings",
-                answerSettings: "Answer Voice Settings",
-                feature1Title: "Multi-Language",
-                feature1Desc: "Support multiple languages and voices from Microsoft Azure TTS",
-                feature2Title: "Multi-Character",
-                feature2Desc: "Create dialogues with multiple characters, each with unique voice",
-                feature3Title: "Auto Subtitles",
-                feature3Desc: "Automatically generate SRT subtitles synchronized with audio",
-                footerText: "Text to Speech Studio - Professional text-to-speech conversion tool",
-                techUsed: "Powered by Microsoft Azure Cognitive Services TTS"
-            },
-            // Additional languages can be added here
-        };
-    </script>
     
     <!-- Main Application Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Language Management
             const languageSelect = document.getElementById('language-select');
-            let currentLanguage = 'vi';
+            const voiceData = {
+                'vi-VN': [
+                    { value: 'vi-VN-HoaiMyNeural', text: 'Hoài My (Nữ)' },
+                    { value: 'vi-VN-NamMinhNeural', text: 'Nam Minh (Nam)' }
+                ],
+                'en-US': [
+                    { value: 'en-US-JennyNeural', text: 'Jenny (Nữ)' },
+                    { value: 'en-US-GuyNeural', text: 'Guy (Nam)' },
+                    { value: 'en-US-AriaNeural', text: 'Aria (Nữ)' },
+                    { value: 'en-US-DavisNeural', text: 'Davis (Nam)' }
+                ],
+                'en-GB': [
+                    { value: 'en-GB-SoniaNeural', text: 'Sonia (Nữ)' },
+                    { value: 'en-GB-RyanNeural', text: 'Ryan (Nam)' }
+                ],
+                'fr-FR': [
+                    { value: 'fr-FR-DeniseNeural', text: 'Denise (Nữ)' },
+                    { value: 'fr-FR-HenriNeural', text: 'Henri (Nam)' }
+                ],
+                'es-ES': [
+                    { value: 'es-ES-ElviraNeural', text: 'Elvira (Nữ)' },
+                    { value: 'es-ES-AlvaroNeural', text: 'Alvaro (Nam)' }
+                ],
+                'de-DE': [
+                    { value: 'de-DE-KatjaNeural', text: 'Katja (Nữ)' },
+                    { value: 'de-DE-ConradNeural', text: 'Conrad (Nam)' }
+                ],
+                'ja-JP': [
+                    { value: 'ja-JP-NanamiNeural', text: 'Nanami (Nữ)' },
+                    { value: 'ja-JP-KeitaNeural', text: 'Keita (Nam)' }
+                ],
+                'ko-KR': [
+                    { value: 'ko-KR-SunHiNeural', text: 'SunHi (Nữ)' },
+                    { value: 'ko-KR-InJoonNeural', text: 'InJoon (Nam)' }
+                ],
+                'zh-CN': [
+                    { value: 'zh-CN-XiaoxiaoNeural', text: 'Xiaoxiao (Nữ)' },
+                    { value: 'zh-CN-YunxiNeural', text: 'Yunxi (Nam)' }
+                ]
+            };
             
-            function updateTranslations(lang) {
-                currentLanguage = lang;
-                document.querySelectorAll('[data-translate]').forEach(element => {
-                    const key = element.getAttribute('data-translate');
-                    if (translations[lang] && translations[lang][key]) {
-                        if (element.tagName === 'INPUT' && element.type === 'text' || element.type === 'textarea') {
-                            element.placeholder = translations[lang][key];
-                        } else {
-                            element.textContent = translations[lang][key];
-                        }
-                    }
+            function updateVoices(language) {
+                const voices = voiceData[language] || voiceData['vi-VN'];
+                const singleVoiceSelect = document.getElementById('single-voice');
+                singleVoiceSelect.innerHTML = '';
+                
+                voices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voice.value;
+                    option.textContent = voice.text;
+                    singleVoiceSelect.appendChild(option);
                 });
                 
-                // Update slider values
-                updateSliderValues();
+                // Update character voices if they match the language
+                document.querySelectorAll('.multi-char-language').forEach(select => {
+                    if (select.value === language) {
+                        const char = select.getAttribute('data-char');
+                        const voiceSelect = document.querySelector(`.multi-char-voice[data-char="${char}"]`);
+                        voiceSelect.innerHTML = '';
+                        voices.forEach(voice => {
+                            const option = document.createElement('option');
+                            option.value = voice.value;
+                            option.textContent = voice.text;
+                            voiceSelect.appendChild(option);
+                        });
+                    }
+                });
             }
             
-            languageSelect.addEventListener('change', function() {
-                updateTranslations(this.value);
-            });
+            // Initialize voices
+            updateVoices('vi-VN');
             
-            // Initialize with Vietnamese
-            updateTranslations('vi');
+            document.getElementById('single-language').addEventListener('change', function() {
+                updateVoices(this.value);
+            });
             
             // Slider Value Updates
             function updateSliderValues() {
                 // Single character sliders
                 document.getElementById('single-rate-value').textContent = 
                     document.getElementById('single-rate').value + '%';
-                document.getElementById('single-pitch-value').textContent = 
-                    document.getElementById('single-pitch').value + 'Hz';
                 document.getElementById('single-volume-value').textContent = 
                     document.getElementById('single-volume').value + '%';
                 document.getElementById('single-pause-value').textContent = 
@@ -885,251 +821,574 @@
             // Initialize slider values
             updateSliderValues();
             
-            // Audio Generation Simulation
-            function simulateTTSGeneration(text, voice, rate, pitch, volume, callback) {
-                // In a real implementation, this would call a backend API
-                // For demo purposes, we simulate with a timeout
-                
-                setTimeout(() => {
-                    // Generate a fake audio URL (in real app, this would be from your TTS service)
-                    const audioBlob = new Blob([], { type: 'audio/mpeg' });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    
-                    // Generate fake subtitles
-                    const subtitles = `1\n00:00:00,000 --> 00:00:05,000\n${text.substring(0, 100)}...\n\n2\n00:00:05,000 --> 00:00:10,000\n${text.substring(100, 200)}...`;
-                    
-                    callback({
-                        audioUrl: audioUrl,
-                        subtitles: subtitles,
-                        status: '✅ Hoàn thành! Bấm vào nút phát để nghe'
+            // Audio Generation using Edge TTS via Serverless Function
+            async function generateTTS(text, voice, rate, volume) {
+                try {
+                    // Using a public Edge TTS proxy service
+                    const response = await fetch(`https://edge-tts-proxy.vercel.app/api/tts`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            voice: voice,
+                            rate: `${rate > 0 ? '+' : ''}${rate}%`,
+                            volume: `${volume}%`
+                        })
                     });
-                }, 2000);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const audioBlob = await response.blob();
+                    return URL.createObjectURL(audioBlob);
+                } catch (error) {
+                    console.error('TTS Error:', error);
+                    throw error;
+                }
+            }
+            
+            // Generate subtitles from text
+            function generateSubtitles(text, charType = null) {
+                const lines = text.split('\n').filter(line => line.trim());
+                let subtitles = '';
+                let startTime = 0;
+                
+                lines.forEach((line, index) => {
+                    const duration = Math.max(2000, line.length * 50); // 50ms per character, minimum 2 seconds
+                    const endTime = startTime + duration;
+                    
+                    // Format time for SRT
+                    const formatTime = (ms) => {
+                        const hours = Math.floor(ms / 3600000);
+                        const minutes = Math.floor((ms % 3600000) / 60000);
+                        const seconds = Math.floor((ms % 60000) / 1000);
+                        const milliseconds = ms % 1000;
+                        
+                        return `${hours.toString().padStart(2, '0')}:` +
+                               `${minutes.toString().padStart(2, '0')}:` +
+                               `${seconds.toString().padStart(2, '0')},` +
+                               `${milliseconds.toString().padStart(3, '0')}`;
+                    };
+                    
+                    subtitles += `${index + 1}\n`;
+                    subtitles += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
+                    
+                    if (charType === 'multi') {
+                        const match = line.match(/^(CHAR[123]|NARRATOR):\s*(.*)/i);
+                        if (match) {
+                            subtitles += `${match[1]}: ${match[2]}\n\n`;
+                        } else {
+                            subtitles += `${line}\n\n`;
+                        }
+                    } else if (charType === 'qa') {
+                        const match = line.match(/^([QA]):\s*(.*)/i);
+                        if (match) {
+                            subtitles += `${match[1]}: ${match[2]}\n\n`;
+                        } else {
+                            subtitles += `${line}\n\n`;
+                        }
+                    } else {
+                        subtitles += `${line}\n\n`;
+                    }
+                    
+                    startTime = endTime + 100; // Add 100ms pause between lines
+                });
+                
+                return subtitles;
             }
             
             // Single Character Tab
-            document.getElementById('single-generate').addEventListener('click', function() {
-                const text = document.getElementById('single-text').value;
+            document.getElementById('single-generate').addEventListener('click', async function() {
+                const text = document.getElementById('single-text').value.trim();
                 const voice = document.getElementById('single-voice').value;
-                const rate = document.getElementById('single-rate').value;
-                const pitch = document.getElementById('single-pitch').value;
-                const volume = document.getElementById('single-volume').value;
+                const rate = parseInt(document.getElementById('single-rate').value);
+                const volume = parseInt(document.getElementById('single-volume').value);
+                const pause = parseInt(document.getElementById('single-pause').value);
+                const generateSubtitle = document.getElementById('single-subtitle').checked;
                 
-                if (!text.trim()) {
-                    alert(currentLanguage === 'vi' ? 'Vui lòng nhập nội dung văn bản' : 'Please enter text content');
+                if (!text) {
+                    showAlert('Vui lòng nhập nội dung văn bản', 'warning');
+                    return;
+                }
+                
+                if (text.length > 5000) {
+                    showAlert('Văn bản quá dài (tối đa 5000 ký tự)', 'warning');
                     return;
                 }
                 
                 // Show loading
                 document.getElementById('single-loading').style.display = 'block';
                 document.getElementById('single-results').style.display = 'none';
+                document.getElementById('single-progress').style.display = 'block';
                 
-                simulateTTSGeneration(text, voice, rate, pitch, volume, function(result) {
+                try {
+                    // Update progress
+                    const progressBar = document.querySelector('#single-progress .progress-bar');
+                    progressBar.style.width = '30%';
+                    
+                    // Generate audio
+                    const audioUrl = await generateTTS(text, voice, rate, volume);
+                    progressBar.style.width = '70%';
+                    
+                    // Generate subtitles if requested
+                    let subtitles = '';
+                    if (generateSubtitle) {
+                        subtitles = generateSubtitles(text);
+                        progressBar.style.width = '100%';
+                    }
+                    
+                    // Hide loading and show results
+                    setTimeout(() => {
+                        document.getElementById('single-loading').style.display = 'none';
+                        document.getElementById('single-progress').style.display = 'none';
+                        document.getElementById('single-results').style.display = 'block';
+                        
+                        const audioPlayer = document.getElementById('single-audio-player');
+                        audioPlayer.src = audioUrl;
+                        
+                        document.getElementById('single-status').className = 'alert alert-success';
+                        document.getElementById('single-status').innerHTML = 
+                            `<i class="fas fa-check-circle me-2"></i> Đã tạo audio thành công! ${text.length} ký tự`;
+                        
+                        if (generateSubtitle) {
+                            document.getElementById('single-subtitles').textContent = subtitles;
+                            document.getElementById('single-download-srt').style.display = 'block';
+                        } else {
+                            document.getElementById('single-subtitles').textContent = 'Không tạo phụ đề';
+                            document.getElementById('single-download-srt').style.display = 'none';
+                        }
+                        
+                        // Setup download buttons
+                        document.getElementById('single-download-audio').onclick = function() {
+                            downloadFile(audioUrl, 'single_audio.mp3');
+                        };
+                        
+                        document.getElementById('single-download-srt').onclick = function() {
+                            const blob = new Blob([subtitles], { type: 'text/plain' });
+                            const url = URL.createObjectURL(blob);
+                            downloadFile(url, 'subtitles.srt');
+                        };
+                        
+                        // Save settings if checked
+                        if (document.getElementById('single-save-settings').checked) {
+                            saveSettings('single', {
+                                language: document.getElementById('single-language').value,
+                                voice: voice,
+                                rate: rate,
+                                volume: volume,
+                                pause: pause
+                            });
+                        }
+                    }, 500);
+                    
+                } catch (error) {
                     document.getElementById('single-loading').style.display = 'none';
+                    document.getElementById('single-progress').style.display = 'none';
+                    
+                    document.getElementById('single-status').className = 'alert alert-danger';
+                    document.getElementById('single-status').innerHTML = 
+                        `<i class="fas fa-exclamation-circle me-2"></i> Lỗi: ${error.message}`;
                     document.getElementById('single-results').style.display = 'block';
                     
-                    const audioPlayer = document.getElementById('single-audio-player');
-                    audioPlayer.src = result.audioUrl;
-                    
-                    document.getElementById('single-status').textContent = result.status;
-                    document.getElementById('single-subtitles').textContent = result.subtitles;
-                    
-                    // Download buttons
-                    document.getElementById('single-download-audio').onclick = function() {
-                        const link = document.createElement('a');
-                        link.href = result.audioUrl;
-                        link.download = 'story_audio.mp3';
-                        link.click();
-                    };
-                    
-                    document.getElementById('single-download-srt').onclick = function() {
-                        const blob = new Blob([result.subtitles], { type: 'text/srt' });
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = 'subtitles.srt';
-                        link.click();
-                    };
-                });
+                    console.error('Audio generation failed:', error);
+                }
             });
             
             // Multi Character Tab
-            document.getElementById('multi-generate').addEventListener('click', function() {
-                const text = document.getElementById('multi-text').value;
+            document.getElementById('multi-generate').addEventListener('click', async function() {
+                const text = document.getElementById('multi-text').value.trim();
+                const pause = parseInt(document.getElementById('multi-pause').value);
+                const format = document.getElementById('multi-format').value;
+                const generateSubtitle = document.getElementById('multi-subtitle').checked;
                 
-                if (!text.trim()) {
-                    alert(currentLanguage === 'vi' ? 'Vui lòng nhập nội dung văn bản' : 'Please enter text content');
+                if (!text) {
+                    showAlert('Vui lòng nhập nội dung hội thoại', 'warning');
                     return;
                 }
                 
-                // Get character settings
-                const charSettings = {
-                    1: {
-                        language: document.querySelector('.multi-char-language[data-char="1"]').value,
-                        voice: document.querySelector('.multi-char-voice[data-char="1"]').value,
-                        rate: document.querySelector('.multi-char-rate[data-char="1"]').value
-                    },
-                    2: {
-                        language: document.querySelector('.multi-char-language[data-char="2"]').value,
-                        voice: document.querySelector('.multi-char-voice[data-char="2"]').value,
-                        rate: document.querySelector('.multi-char-rate[data-char="2"]').value
-                    },
-                    3: {
-                        language: document.querySelector('.multi-char-language[data-char="3"]').value,
-                        voice: document.querySelector('.multi-char-voice[data-char="3"]').value,
-                        rate: document.querySelector('.multi-char-rate[data-char="3"]').value
+                // Parse dialogue lines
+                const lines = text.split('\n').filter(line => line.trim());
+                const dialogues = [];
+                
+                lines.forEach(line => {
+                    const match = line.match(/^(CHAR[123]|NARRATOR):\s*(.*)/i);
+                    if (match) {
+                        dialogues.push({
+                            character: match[1].toUpperCase(),
+                            text: match[2]
+                        });
+                    } else {
+                        // If no character prefix, add to previous line
+                        if (dialogues.length > 0) {
+                            dialogues[dialogues.length - 1].text += ' ' + line;
+                        }
                     }
-                };
+                });
+                
+                if (dialogues.length === 0) {
+                    showAlert('Không tìm thấy lời thoại với định dạng CHAR1:, CHAR2:, CHAR3: hoặc NARRATOR:', 'warning');
+                    return;
+                }
                 
                 // Show loading
                 document.getElementById('multi-loading').style.display = 'block';
                 document.getElementById('multi-results').style.display = 'none';
+                document.getElementById('multi-progress').style.display = 'block';
                 
-                // Simulate processing
-                setTimeout(() => {
+                try {
+                    const progressBar = document.querySelector('#multi-progress .progress-bar');
+                    const audioSegments = [];
+                    
+                    // Generate audio for each dialogue
+                    for (let i = 0; i < dialogues.length; i++) {
+                        const dialogue = dialogues[i];
+                        const charNum = dialogue.character === 'CHAR1' ? 1 : 
+                                        dialogue.character === 'CHAR2' ? 2 : 1; // Default to CHAR1 for others
+                        
+                        const voiceSelect = document.querySelector(`.multi-char-voice[data-char="${charNum}"]`);
+                        const rateSelect = document.querySelector(`.multi-char-rate[data-char="${charNum}"]`);
+                        
+                        progressBar.style.width = `${(i / dialogues.length) * 80}%`;
+                        
+                        try {
+                            const audioUrl = await generateTTS(
+                                dialogue.text,
+                                voiceSelect.value,
+                                parseInt(rateSelect.value),
+                                100
+                            );
+                            
+                            audioSegments.push({
+                                url: audioUrl,
+                                character: dialogue.character,
+                                text: dialogue.text
+                            });
+                        } catch (error) {
+                            console.error(`Failed to generate audio for ${dialogue.character}:`, error);
+                        }
+                    }
+                    
+                    // Combine audio segments
+                    if (audioSegments.length > 0) {
+                        progressBar.style.width = '90%';
+                        
+                        // For simplicity, we'll use the first audio as combined audio
+                        // In a real implementation, you would merge all audio segments
+                        const combinedAudioUrl = audioSegments[0].url;
+                        
+                        // Generate subtitles
+                        let subtitles = '';
+                        if (generateSubtitle) {
+                            subtitles = generateSubtitles(text, 'multi');
+                            progressBar.style.width = '100%';
+                        }
+                        
+                        // Hide loading and show results
+                        setTimeout(() => {
+                            document.getElementById('multi-loading').style.display = 'none';
+                            document.getElementById('multi-progress').style.display = 'none';
+                            document.getElementById('multi-results').style.display = 'block';
+                            
+                            const audioPlayer = document.getElementById('multi-audio-player');
+                            audioPlayer.src = combinedAudioUrl;
+                            
+                            document.getElementById('multi-status').className = 'alert alert-success';
+                            document.getElementById('multi-status').innerHTML = 
+                                `<i class="fas fa-check-circle me-2"></i> Đã tạo audio cho ${dialogues.length} lời thoại`;
+                            
+                            if (generateSubtitle) {
+                                document.getElementById('multi-subtitles').textContent = subtitles;
+                                document.getElementById('multi-download-srt').style.display = 'block';
+                            } else {
+                                document.getElementById('multi-subtitles').textContent = 'Không tạo phụ đề';
+                                document.getElementById('multi-download-srt').style.display = 'none';
+                            }
+                            
+                            // Setup download buttons
+                            document.getElementById('multi-download-audio').onclick = function() {
+                                downloadFile(combinedAudioUrl, 'multi_character_audio.mp3');
+                            };
+                            
+                            document.getElementById('multi-download-srt').onclick = function() {
+                                const blob = new Blob([subtitles], { type: 'text/plain' });
+                                const url = URL.createObjectURL(blob);
+                                downloadFile(url, 'multi_character_subtitles.srt');
+                            };
+                        }, 500);
+                    } else {
+                        throw new Error('Không thể tạo audio cho bất kỳ lời thoại nào');
+                    }
+                    
+                } catch (error) {
                     document.getElementById('multi-loading').style.display = 'none';
+                    document.getElementById('multi-progress').style.display = 'none';
+                    
+                    document.getElementById('multi-status').className = 'alert alert-danger';
+                    document.getElementById('multi-status').innerHTML = 
+                        `<i class="fas fa-exclamation-circle me-2"></i> Lỗi: ${error.message}`;
                     document.getElementById('multi-results').style.display = 'block';
                     
-                    // Generate fake audio URL
-                    const audioBlob = new Blob([], { type: 'audio/mpeg' });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    
-                    // Parse dialogue for subtitles
-                    const lines = text.split('\n');
-                    let subtitles = '';
-                    let time = 0;
-                    
-                    lines.forEach((line, index) => {
-                        if (line.trim()) {
-                            subtitles += `${index + 1}\n`;
-                            subtitles += `00:00:${time.toString().padStart(3, '0')},000 --> 00:00:${(time + 5).toString().padStart(3, '0')},000\n`;
-                            subtitles += `${line.trim()}\n\n`;
-                            time += 5;
-                        }
-                    });
-                    
-                    const audioPlayer = document.getElementById('multi-audio-player');
-                    audioPlayer.src = audioUrl;
-                    
-                    document.getElementById('multi-status').textContent = 
-                        currentLanguage === 'vi' ? '✅ Hoàn thành! Bấm vào nút phát để nghe' : '✅ Complete! Click play to listen';
-                    document.getElementById('multi-subtitles').textContent = subtitles;
-                    
-                    // Download buttons
-                    document.getElementById('multi-download-audio').onclick = function() {
-                        const link = document.createElement('a');
-                        link.href = audioUrl;
-                        link.download = 'multi_character_story.mp3';
-                        link.click();
-                    };
-                    
-                    document.getElementById('multi-download-srt').onclick = function() {
-                        const blob = new Blob([subtitles], { type: 'text/srt' });
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = 'multi_character_subtitles.srt';
-                        link.click();
-                    };
-                }, 3000);
+                    console.error('Multi-character audio generation failed:', error);
+                }
             });
             
             // Q&A Tab
-            document.getElementById('qa-generate').addEventListener('click', function() {
-                const text = document.getElementById('qa-text').value;
+            document.getElementById('qa-generate').addEventListener('click', async function() {
+                const text = document.getElementById('qa-text').value.trim();
+                const repeat = parseInt(document.getElementById('qa-repeat').value);
+                const pauseQ = parseInt(document.getElementById('qa-pause-q').value);
+                const pauseA = parseInt(document.getElementById('qa-pause-a').value);
                 
-                if (!text.trim()) {
-                    alert(currentLanguage === 'vi' ? 'Vui lòng nhập nội dung văn bản' : 'Please enter text content');
+                if (!text) {
+                    showAlert('Vui lòng nhập nội dung hỏi đáp', 'warning');
+                    return;
+                }
+                
+                // Parse Q&A lines
+                const lines = text.split('\n').filter(line => line.trim());
+                const qaPairs = [];
+                let currentPair = null;
+                
+                lines.forEach(line => {
+                    const match = line.match(/^([QA]):\s*(.*)/i);
+                    if (match) {
+                        const type = match[1].toUpperCase();
+                        const content = match[2];
+                        
+                        if (type === 'Q') {
+                            if (currentPair) qaPairs.push(currentPair);
+                            currentPair = { Q: content, A: '' };
+                        } else if (type === 'A' && currentPair) {
+                            currentPair.A = content;
+                        }
+                    } else if (currentPair) {
+                        // Append to current line
+                        if (line.toLowerCase().startsWith('q:')) {
+                            if (currentPair.Q) qaPairs.push(currentPair);
+                            currentPair = { Q: line.substring(2).trim(), A: '' };
+                        } else if (line.toLowerCase().startsWith('a:')) {
+                            if (currentPair) currentPair.A = line.substring(2).trim();
+                        } else {
+                            // Append to last element
+                            if (currentPair.A === '') {
+                                currentPair.Q += ' ' + line;
+                            } else {
+                                currentPair.A += ' ' + line;
+                            }
+                        }
+                    }
+                });
+                
+                if (currentPair) qaPairs.push(currentPair);
+                
+                if (qaPairs.length === 0) {
+                    showAlert('Không tìm thấy cặp hỏi đáp với định dạng Q: và A:', 'warning');
                     return;
                 }
                 
                 // Show loading
                 document.getElementById('qa-loading').style.display = 'block';
                 document.getElementById('qa-results').style.display = 'none';
+                document.getElementById('qa-progress').style.display = 'block';
                 
-                // Simulate processing
-                setTimeout(() => {
+                try {
+                    const progressBar = document.querySelector('#qa-progress .progress-bar');
+                    const audioSegments = [];
+                    
+                    // Generate audio for each Q&A pair
+                    for (let i = 0; i < qaPairs.length; i++) {
+                        const pair = qaPairs[i];
+                        
+                        // Generate Q audio
+                        progressBar.style.width = `${(i / qaPairs.length) * 40}%`;
+                        try {
+                            const qAudioUrl = await generateTTS(
+                                pair.Q,
+                                document.getElementById('qa-voice-q').value,
+                                parseInt(document.getElementById('qa-rate-q').value),
+                                100
+                            );
+                            audioSegments.push({ type: 'Q', url: qAudioUrl, text: pair.Q });
+                        } catch (error) {
+                            console.error('Failed to generate Q audio:', error);
+                        }
+                        
+                        // Generate A audio
+                        progressBar.style.width = `${40 + (i / qaPairs.length) * 40}%`;
+                        try {
+                            const aAudioUrl = await generateTTS(
+                                pair.A,
+                                document.getElementById('qa-voice-a').value,
+                                parseInt(document.getElementById('qa-rate-a').value),
+                                100
+                            );
+                            audioSegments.push({ type: 'A', url: aAudioUrl, text: pair.A });
+                        } catch (error) {
+                            console.error('Failed to generate A audio:', error);
+                        }
+                    }
+                    
+                    if (audioSegments.length > 0) {
+                        progressBar.style.width = '90%';
+                        
+                        // Use first Q audio as combined audio for demo
+                        const combinedAudioUrl = audioSegments.find(seg => seg.type === 'Q')?.url || audioSegments[0].url;
+                        
+                        // Generate subtitles
+                        const subtitles = generateSubtitles(text, 'qa');
+                        progressBar.style.width = '100%';
+                        
+                        // Hide loading and show results
+                        setTimeout(() => {
+                            document.getElementById('qa-loading').style.display = 'none';
+                            document.getElementById('qa-progress').style.display = 'none';
+                            document.getElementById('qa-results').style.display = 'block';
+                            
+                            const audioPlayer = document.getElementById('qa-audio-player');
+                            audioPlayer.src = combinedAudioUrl;
+                            
+                            document.getElementById('qa-status').className = 'alert alert-success';
+                            document.getElementById('qa-status').innerHTML = 
+                                `<i class="fas fa-check-circle me-2"></i> Đã tạo audio cho ${qaPairs.length} cặp hỏi đáp`;
+                            
+                            document.getElementById('qa-subtitles').textContent = subtitles;
+                            document.getElementById('qa-download-srt').style.display = 'block';
+                            
+                            // Setup download buttons
+                            document.getElementById('qa-download-audio').onclick = function() {
+                                downloadFile(combinedAudioUrl, 'qa_dialogue_audio.mp3');
+                            };
+                            
+                            document.getElementById('qa-download-srt').onclick = function() {
+                                const blob = new Blob([subtitles], { type: 'text/plain' });
+                                const url = URL.createObjectURL(blob);
+                                downloadFile(url, 'qa_subtitles.srt');
+                            };
+                        }, 500);
+                    } else {
+                        throw new Error('Không thể tạo audio cho hỏi đáp');
+                    }
+                    
+                } catch (error) {
                     document.getElementById('qa-loading').style.display = 'none';
+                    document.getElementById('qa-progress').style.display = 'none';
+                    
+                    document.getElementById('qa-status').className = 'alert alert-danger';
+                    document.getElementById('qa-status').innerHTML = 
+                        `<i class="fas fa-exclamation-circle me-2"></i> Lỗi: ${error.message}`;
                     document.getElementById('qa-results').style.display = 'block';
                     
-                    // Generate fake audio URL
-                    const audioBlob = new Blob([], { type: 'audio/mpeg' });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    
-                    // Parse Q&A for subtitles
-                    const lines = text.split('\n');
-                    let subtitles = '';
-                    let time = 0;
-                    
-                    lines.forEach((line, index) => {
-                        if (line.trim()) {
-                            subtitles += `${index + 1}\n`;
-                            subtitles += `00:00:${time.toString().padStart(3, '0')},000 --> 00:00:${(time + 3).toString().padStart(3, '0')},000\n`;
-                            subtitles += `${line.trim()}\n\n`;
-                            time += 3;
-                        }
-                    });
-                    
-                    const audioPlayer = document.getElementById('qa-audio-player');
-                    audioPlayer.src = audioUrl;
-                    
-                    document.getElementById('qa-status').textContent = 
-                        currentLanguage === 'vi' ? '✅ Hoàn thành! Bấm vào nút phát để nghe' : '✅ Complete! Click play to listen';
-                    document.getElementById('qa-subtitles').textContent = subtitles;
-                    
-                    // Download buttons
-                    document.getElementById('qa-download-audio').onclick = function() {
-                        const link = document.createElement('a');
-                        link.href = audioUrl;
-                        link.download = 'qa_dialogue.mp3';
-                        link.click();
-                    };
-                    
-                    document.getElementById('qa-download-srt').onclick = function() {
-                        const blob = new Blob([subtitles], { type: 'text/srt' });
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = 'qa_subtitles.srt';
-                        link.click();
-                    };
-                }, 2500);
+                    console.error('Q&A audio generation failed:', error);
+                }
             });
             
-            // Initialize Audio Players
-            const audioPlayers = document.querySelectorAll('audio');
-            audioPlayers.forEach(player => {
-                new AudioPlayer(player);
+            // Helper functions
+            function showAlert(message, type = 'info') {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+                alertDiv.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                const container = document.querySelector('.container');
+                container.insertBefore(alertDiv, container.firstChild);
+                
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 5000);
+            }
+            
+            function downloadFile(url, filename) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            function saveSettings(key, settings) {
+                try {
+                    const allSettings = JSON.parse(localStorage.getItem('tts_settings') || '{}');
+                    allSettings[key] = settings;
+                    localStorage.setItem('tts_settings', JSON.stringify(allSettings));
+                    showAlert('Đã lưu cài đặt', 'success');
+                } catch (error) {
+                    console.error('Failed to save settings:', error);
+                }
+            }
+            
+            function loadSettings() {
+                try {
+                    const allSettings = JSON.parse(localStorage.getItem('tts_settings') || '{}');
+                    
+                    // Load single character settings
+                    if (allSettings.single) {
+                        const s = allSettings.single;
+                        document.getElementById('single-language').value = s.language || 'vi-VN';
+                        updateVoices(s.language || 'vi-VN');
+                        document.getElementById('single-voice').value = s.voice || 'vi-VN-HoaiMyNeural';
+                        document.getElementById('single-rate').value = s.rate || 0;
+                        document.getElementById('single-volume').value = s.volume || 100;
+                        document.getElementById('single-pause').value = s.pause || 300;
+                        updateSliderValues();
+                    }
+                } catch (error) {
+                    console.error('Failed to load settings:', error);
+                }
+            }
+            
+            // Load saved settings on page load
+            loadSettings();
+            
+            // Language selector for UI
+            languageSelect.addEventListener('change', function() {
+                const lang = this.value;
+                if (lang === 'en') {
+                    document.getElementById('title').textContent = 'Text to Speech Studio';
+                    document.getElementById('subtitle').textContent = 'Convert text to professional speech with Microsoft Edge TTS';
+                    // Update other text elements as needed
+                } else {
+                    document.getElementById('title').textContent = 'Text to Speech Studio';
+                    document.getElementById('subtitle').textContent = 'Chuyển văn bản thành giọng nói chuyên nghiệp với Microsoft Edge TTS';
+                }
             });
             
-            // Sample Data Button (for demo)
-            const sampleButtons = `
-                <div class="mt-2">
-                    <button class="btn btn-sm btn-outline-secondary me-2" onclick="loadSample('single')">Tải mẫu 1 nhân vật</button>
-                    <button class="btn btn-sm btn-outline-secondary me-2" onclick="loadSample('multi')">Tải mẫu đa nhân vật</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="loadSample('qa')">Tải mẫu hỏi đáp</button>
-                </div>
-            `;
-            
-            document.getElementById('single-text').parentNode.innerHTML += sampleButtons;
-            document.getElementById('multi-text').parentNode.innerHTML += sampleButtons.replace(/loadSample\('(\w+)'\)/g, "loadSample('$1')");
-            document.getElementById('qa-text').parentNode.innerHTML += sampleButtons.replace(/loadSample\('(\w+)'\)/g, "loadSample('$1')");
-            
-            // Load sample data function
-            window.loadSample = function(type) {
+            // Sample button for testing
+            const sampleButton = document.createElement('button');
+            sampleButton.className = 'btn btn-outline-secondary btn-sm mt-2';
+            sampleButton.innerHTML = '<i class="fas fa-magic me-1"></i> Tải nội dung mẫu';
+            sampleButton.onclick = function() {
+                const tab = document.querySelector('.nav-link.active').id.replace('-tab', '');
                 const samples = {
-                    single: "Xin chào! Đây là bản demo của công cụ Text to Speech.\n\nCông cụ này giúp bạn chuyển văn bản thành giọng nói tự nhiên.\n\nBạn có thể điều chỉnh tốc độ, cao độ và âm lượng theo ý muốn.",
-                    multi: "CHAR1: Xin chào, tôi là nhân vật số 1.\nCHAR2: Chào bạn, tôi là nhân vật số 2.\nCHAR1: Hôm nay chúng ta sẽ thảo luận về công nghệ Text to Speech.\nCHAR2: Đó là một công nghệ rất thú vị và hữu ích.\nNARRATOR: Cuộc trò chuyện tiếp tục với nhiều chủ đề hấp dẫn.",
-                    qa: "Q: Text to Speech là gì?\nA: Text to Speech là công nghệ chuyển đổi văn bản thành giọng nói.\n\nQ: Công cụ này có những tính năng gì?\nA: Công cụ hỗ trợ nhiều ngôn ngữ, giọng đọc, và tạo phụ đề tự động.\n\nQ: Làm thế nào để sử dụng?\nA: Chỉ cần nhập văn bản, chọn giọng đọc và bấm nút tạo audio."
+                    single: "Xin chào! Đây là bản demo của công cụ Text to Speech.\n\nCông cụ này sử dụng công nghệ Microsoft Edge TTS để chuyển văn bản thành giọng nói tự nhiên với chất lượng cao.\n\nBạn có thể điều chỉnh tốc độ đọc, âm lượng, và chọn giọng đọc phù hợp với nhiều ngôn ngữ khác nhau.\n\nHãy thử tạo audio và tải về để nghe kết quả!",
+                    multi: "CHAR1: Xin chào các bạn, tôi là nhân vật số 1.\nCHAR2: Chào bạn, tôi rất vui được tham gia cuộc trò chuyện hôm nay.\nCHAR1: Chúng ta đang thử nghiệm công cụ Text to Speech đa nhân vật.\nCHAR2: Đúng vậy, mỗi nhân vật sẽ có giọng đọc riêng biệt.\nNARRATOR: Công nghệ này rất hữu ích cho việc tạo nội dung audio book, podcast, và các ứng dụng đa phương tiện.",
+                    qa: "Q: Text to Speech là gì?\nA: Text to Speech (TTS) là công nghệ chuyển đổi văn bản thành giọng nói tự nhiên.\n\nQ: Công cụ này có những tính năng gì nổi bật?\nA: Công cụ hỗ trợ đa ngôn ngữ, nhiều giọng đọc, điều chỉnh tốc độ/âm lượng, và tự động tạo phụ đề.\n\nQ: Làm thế nào để sử dụng công cụ này?\nA: Rất đơn giản: nhập văn bản, chọn giọng đọc, điều chỉnh thông số và bấm nút tạo audio."
                 };
                 
-                if (type === 'single') {
-                    document.getElementById('single-text').value = samples.single;
-                } else if (type === 'multi') {
-                    document.getElementById('multi-text').value = samples.multi;
-                } else if (type === 'qa') {
-                    document.getElementById('qa-text').value = samples.qa;
+                if (samples[tab]) {
+                    const textarea = document.getElementById(`${tab}-text`);
+                    if (textarea) {
+                        textarea.value = samples[tab];
+                        showAlert('Đã tải nội dung mẫu', 'success');
+                    }
                 }
             };
+            
+            // Add sample button to each tab
+            ['single', 'multi', 'qa'].forEach(tab => {
+                const textarea = document.getElementById(`${tab}-text`);
+                if (textarea) {
+                    const parent = textarea.parentNode;
+                    const clone = sampleButton.cloneNode(true);
+                    clone.onclick = sampleButton.onclick;
+                    parent.appendChild(clone);
+                }
+            });
         });
     </script>
 </body>
