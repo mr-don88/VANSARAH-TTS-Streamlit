@@ -1,0 +1,17 @@
+{
+  "name": "vansarah-tts-web",
+  "version": "1.0.0",
+  "description": "VanSarah TTS Web Interface",
+  "main": "index.html",
+  "scripts": {
+    "dev": "live-server --port=3000",
+    "build": "echo 'No build step required'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": ["tts", "text-to-speech", "vansarah"],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
