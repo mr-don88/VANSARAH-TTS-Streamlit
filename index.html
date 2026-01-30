@@ -508,6 +508,72 @@
         .test-btn:hover {
             background: #e0a800;
         }
+        
+        .audio-container {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .audio-placeholder {
+            padding: 30px;
+            background: white;
+            border-radius: var(--border-radius);
+            border: 2px dashed #dee2e6;
+            color: #6c757d;
+        }
+        
+        .audio-placeholder i {
+            font-size: 48px;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+        
+        .progress-container {
+            margin: 15px 0;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #dee2e6;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .play-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .play-btn {
+            background: var(--success-color);
+            color: white;
+            padding: 8px 20px;
+        }
+        
+        .pause-btn {
+            background: var(--warning-color);
+            color: var(--dark-color);
+            padding: 8px 20px;
+        }
+        
+        .stop-btn {
+            background: var(--danger-color);
+            color: white;
+            padding: 8px 20px;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -583,20 +649,30 @@ The price is $99.99 and the temperature is 75°F today.
                         <button class="btn-primary" id="generate-standard">
                             <i class="fas fa-play"></i> Generate & Speak
                         </button>
-                        
-                        <button class="btn-secondary" id="stop-standard" style="margin-left: 10px;">
-                            <i class="fas fa-stop"></i> Stop
-                        </button>
                     </div>
                     
                     <div>
                         <div class="output-section">
                             <h3><i class="fas fa-music"></i> Output Audio</h3>
-                            <div style="background: #e9ecef; padding: 20px; border-radius: var(--border-radius); text-align: center;">
-                                <p><i class="fas fa-info-circle"></i> Audio will play through browser's speech synthesis</p>
-                                <p class="audio-status" id="standard-audio-status">Status: Ready</p>
-                                <div class="progress-bar" style="height: 5px; background: #ddd; border-radius: 5px; margin: 15px 0; overflow: hidden;">
-                                    <div id="standard-progress" style="height: 100%; background: var(--primary-color); width: 0%; transition: width 0.3s ease;"></div>
+                            <div class="audio-container">
+                                <div class="audio-placeholder" id="standard-audio-placeholder">
+                                    <i class="fas fa-headphones"></i>
+                                    <p>Audio will appear here after generation</p>
+                                    <small>Click "Generate & Speak" to create audio</small>
+                                </div>
+                                <audio controls class="audio-player" id="standard-audio" style="display: none;"></audio>
+                                
+                                <div class="progress-container" style="display: none;" id="standard-progress-container">
+                                    <div>Generating audio... <span id="standard-progress-text">0%</span></div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="standard-progress-fill"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="play-controls" style="display: none;" id="standard-controls">
+                                    <button class="play-btn" id="standard-play"><i class="fas fa-play"></i> Play</button>
+                                    <button class="pause-btn" id="standard-pause"><i class="fas fa-pause"></i> Pause</button>
+                                    <button class="stop-btn" id="standard-stop"><i class="fas fa-stop"></i> Stop</button>
                                 </div>
                             </div>
                             
@@ -608,6 +684,9 @@ The price is $99.99 and the temperature is 75°F today.
                             
                             <button class="btn-success download-btn" id="download-standard-srt">
                                 <i class="fas fa-download"></i> Download SRT File
+                            </button>
+                            <button class="btn-secondary download-btn" id="download-standard-audio" style="margin-left: 10px; display: none;">
+                                <i class="fas fa-download"></i> Download Audio
                             </button>
                         </div>
                     </div>
@@ -673,20 +752,30 @@ A: Visit our website at https://www.company.com
                         <button class="btn-primary" id="generate-qa">
                             <i class="fas fa-play"></i> Generate & Speak Q&A
                         </button>
-                        
-                        <button class="btn-secondary" id="stop-qa" style="margin-left: 10px;">
-                            <i class="fas fa-stop"></i> Stop
-                        </button>
                     </div>
                     
                     <div>
                         <div class="output-section">
                             <h3><i class="fas fa-music"></i> Output Audio</h3>
-                            <div style="background: #e9ecef; padding: 20px; border-radius: var(--border-radius); text-align: center;">
-                                <p><i class="fas fa-info-circle"></i> Audio will play through browser's speech synthesis</p>
-                                <p class="audio-status" id="qa-audio-status">Status: Ready</p>
-                                <div class="progress-bar" style="height: 5px; background: #ddd; border-radius: 5px; margin: 15px 0; overflow: hidden;">
-                                    <div id="qa-progress" style="height: 100%; background: var(--primary-color); width: 0%; transition: width 0.3s ease;"></div>
+                            <div class="audio-container">
+                                <div class="audio-placeholder" id="qa-audio-placeholder">
+                                    <i class="fas fa-headphones"></i>
+                                    <p>Audio will appear here after generation</p>
+                                    <small>Click "Generate & Speak" to create audio</small>
+                                </div>
+                                <audio controls class="audio-player" id="qa-audio" style="display: none;"></audio>
+                                
+                                <div class="progress-container" style="display: none;" id="qa-progress-container">
+                                    <div>Generating audio... <span id="qa-progress-text">0%</span></div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="qa-progress-fill"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="play-controls" style="display: none;" id="qa-controls">
+                                    <button class="play-btn" id="qa-play"><i class="fas fa-play"></i> Play</button>
+                                    <button class="pause-btn" id="qa-pause"><i class="fas fa-pause"></i> Pause</button>
+                                    <button class="stop-btn" id="qa-stop"><i class="fas fa-stop"></i> Stop</button>
                                 </div>
                             </div>
                             
@@ -698,6 +787,9 @@ A: Visit our website at https://www.company.com
                             
                             <button class="btn-success download-btn" id="download-qa-srt">
                                 <i class="fas fa-download"></i> Download SRT File
+                            </button>
+                            <button class="btn-secondary download-btn" id="download-qa-audio" style="margin-left: 10px; display: none;">
+                                <i class="fas fa-download"></i> Download Audio
                             </button>
                         </div>
                     </div>
@@ -795,20 +887,30 @@ CHAR4: The price is $1,234.56
                         <button class="btn-primary" id="generate-multichar">
                             <i class="fas fa-play"></i> Generate & Speak Multi-Character
                         </button>
-                        
-                        <button class="btn-secondary" id="stop-multichar" style="margin-left: 10px;">
-                            <i class="fas fa-stop"></i> Stop
-                        </button>
                     </div>
                     
                     <div>
                         <div class="output-section">
                             <h3><i class="fas fa-music"></i> Output Audio</h3>
-                            <div style="background: #e9ecef; padding: 20px; border-radius: var(--border-radius); text-align: center;">
-                                <p><i class="fas fa-info-circle"></i> Audio will play through browser's speech synthesis</p>
-                                <p class="audio-status" id="multichar-audio-status">Status: Ready</p>
-                                <div class="progress-bar" style="height: 5px; background: #ddd; border-radius: 5px; margin: 15px 0; overflow: hidden;">
-                                    <div id="multichar-progress" style="height: 100%; background: var(--primary-color); width: 0%; transition: width 0.3s ease;"></div>
+                            <div class="audio-container">
+                                <div class="audio-placeholder" id="multichar-audio-placeholder">
+                                    <i class="fas fa-headphones"></i>
+                                    <p>Audio will appear here after generation</p>
+                                    <small>Click "Generate & Speak" to create audio</small>
+                                </div>
+                                <audio controls class="audio-player" id="multichar-audio" style="display: none;"></audio>
+                                
+                                <div class="progress-container" style="display: none;" id="multichar-progress-container">
+                                    <div>Generating audio... <span id="multichar-progress-text">0%</span></div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="multichar-progress-fill"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="play-controls" style="display: none;" id="multichar-controls">
+                                    <button class="play-btn" id="multichar-play"><i class="fas fa-play"></i> Play</button>
+                                    <button class="pause-btn" id="multichar-pause"><i class="fas fa-pause"></i> Pause</button>
+                                    <button class="stop-btn" id="multichar-stop"><i class="fas fa-stop"></i> Stop</button>
                                 </div>
                             </div>
                             
@@ -820,6 +922,9 @@ CHAR4: The price is $1,234.56
                             
                             <button class="btn-success download-btn" id="download-multichar-srt">
                                 <i class="fas fa-download"></i> Download SRT File
+                            </button>
+                            <button class="btn-secondary download-btn" id="download-multichar-audio" style="margin-left: 10px; display: none;">
+                                <i class="fas fa-download"></i> Download Audio
                             </button>
                         </div>
                     </div>
@@ -849,7 +954,7 @@ CHAR2: I'm fine, thanks!
     
     <div class="status-bar">
         <div id="status-text">Ready - Click "Test Speech" first to activate speech synthesis</div>
-        <div id="device-info">Using Web Speech API</div>
+        <div id="device-info">Using Web Speech API with Audio Recording</div>
     </div>
 
     <script>
@@ -859,6 +964,10 @@ CHAR2: I'm fine, thanks!
         let currentUtterances = [];
         let isSpeaking = false;
         let speechActivated = false;
+        let audioContext = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let currentAudioBlob = null;
         
         // Initialize the application
         function init() {
@@ -894,6 +1003,10 @@ CHAR2: I'm fine, thanks!
                 document.getElementById('generate-multichar').disabled = true;
                 updateStatus("Speech synthesis not supported");
                 return false;
+            }
+            
+            if (!('MediaRecorder' in window)) {
+                showNotification('Audio recording not supported. You can still speak but cannot save audio.', 'warning');
             }
             
             console.log("Speech synthesis is supported");
@@ -1054,19 +1167,61 @@ CHAR2: I'm fine, thanks!
             document.getElementById('test-speech').addEventListener('click', testSpeech);
             
             // Generate buttons
-            document.getElementById('generate-standard').addEventListener('click', generateStandard);
-            document.getElementById('generate-qa').addEventListener('click', generateQA);
-            document.getElementById('generate-multichar').addEventListener('click', generateMultiChar);
-            
-            // Stop buttons
-            document.getElementById('stop-standard').addEventListener('click', stopAllSpeech);
-            document.getElementById('stop-qa').addEventListener('click', stopAllSpeech);
-            document.getElementById('stop-multichar').addEventListener('click', stopAllSpeech);
+            document.getElementById('generate-standard').addEventListener('click', () => generateAudio('standard'));
+            document.getElementById('generate-qa').addEventListener('click', () => generateAudio('qa'));
+            document.getElementById('generate-multichar').addEventListener('click', () => generateAudio('multichar'));
             
             // Download buttons
             document.getElementById('download-standard-srt').addEventListener('click', () => downloadSRT('standard'));
             document.getElementById('download-qa-srt').addEventListener('click', () => downloadSRT('qa'));
             document.getElementById('download-multichar-srt').addEventListener('click', () => downloadSRT('multichar'));
+            
+            // Audio download buttons
+            document.getElementById('download-standard-audio').addEventListener('click', () => downloadAudio('standard'));
+            document.getElementById('download-qa-audio').addEventListener('click', () => downloadAudio('qa'));
+            document.getElementById('download-multichar-audio').addEventListener('click', () => downloadAudio('multichar'));
+            
+            // Play controls
+            setupPlayControls('standard');
+            setupPlayControls('qa');
+            setupPlayControls('multichar');
+        }
+        
+        function setupPlayControls(mode) {
+            const playBtn = document.getElementById(`${mode}-play`);
+            const pauseBtn = document.getElementById(`${mode}-pause`);
+            const stopBtn = document.getElementById(`${mode}-stop`);
+            const audioElement = document.getElementById(`${mode}-audio`);
+            
+            if (playBtn) {
+                playBtn.addEventListener('click', () => {
+                    if (audioElement.src) {
+                        audioElement.play().catch(e => console.error("Play error:", e));
+                    }
+                });
+            }
+            
+            if (pauseBtn) {
+                pauseBtn.addEventListener('click', () => {
+                    audioElement.pause();
+                });
+            }
+            
+            if (stopBtn) {
+                stopBtn.addEventListener('click', () => {
+                    audioElement.pause();
+                    audioElement.currentTime = 0;
+                });
+            }
+            
+            // Audio element events
+            audioElement.addEventListener('play', () => {
+                updateStatus(`Playing ${mode} audio`);
+            });
+            
+            audioElement.addEventListener('ended', () => {
+                updateStatus(`${mode} audio finished`);
+            });
         }
         
         function updateStatus(message) {
@@ -1215,427 +1370,488 @@ CHAR2: I'm fine, thanks!
             return dialogues;
         }
         
-        function generateStandard() {
+        async function generateAudio(mode) {
             if (!speechActivated) {
                 showNotification("Please click 'Test Speech' first to activate speech synthesis", 'error');
                 return;
             }
             
-            const text = document.getElementById('standard-text').value.trim();
-            if (!text) {
-                showNotification('Please enter some text', 'error');
-                return;
-            }
+            // Get text based on mode
+            let text = '';
+            let settings = {};
             
-            showLoading(true, 'Processing text...');
-            
-            // Stop any current speech
-            speechSynthesis.cancel();
-            currentUtterances = [];
-            
-            // Process text
-            const processedText = processText(text);
-            
-            // Get settings
-            const speed = parseFloat(document.getElementById('standard-speed').value);
-            const volume = parseFloat(document.getElementById('standard-volume').value);
-            const pitch = parseFloat(document.getElementById('standard-pitch').value);
-            
-            // Get selected voice
-            let selectedVoice = null;
-            const selectedOption = document.querySelector('#standard-voice-selector .voice-option.selected');
-            if (selectedOption) {
-                const voiceIndex = parseInt(selectedOption.dataset.voiceIndex);
-                if (voiceIndex >= 0 && voiceIndex < voices.length) {
-                    selectedVoice = voices[voiceIndex];
+            if (mode === 'standard') {
+                text = document.getElementById('standard-text').value.trim();
+                if (!text) {
+                    showNotification('Please enter some text', 'error');
+                    return;
                 }
-            }
-            
-            // If no voice selected, use first English voice
-            if (!selectedVoice) {
-                selectedVoice = voices.find(v => v.lang.startsWith('en-')) || voices[0];
-            }
-            
-            // Create speech utterance
-            const utterance = new SpeechSynthesisUtterance(processedText);
-            
-            // Set voice properties
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-                utterance.lang = selectedVoice.lang;
-            }
-            
-            utterance.rate = speed;
-            utterance.volume = volume;
-            utterance.pitch = pitch;
-            
-            // Generate stats
-            const wordCount = text.split(/\s+/).filter(w => w.length > 0).length;
-            const charCount = text.length;
-            const stats = `Text processed: ${wordCount} words, ${charCount} characters\nSpeed: ${speed}x, Volume: ${volume}, Pitch: ${pitch}\nVoice: ${selectedVoice?.name || 'Default'}`;
-            
-            // Generate simple subtitles
-            const subtitles = generateSubtitles(text, 3); // 3 seconds per line
-            
-            // Update UI
-            document.getElementById('standard-stats').textContent = stats;
-            document.getElementById('standard-subtitles').textContent = subtitles;
-            document.getElementById('standard-audio-status').textContent = 'Status: Speaking...';
-            
-            // Update progress bar
-            const progressBar = document.getElementById('standard-progress');
-            progressBar.style.width = '0%';
-            
-            // Set up progress tracking
-            let startTime = Date.now();
-            const estimatedDuration = (processedText.length / 15) * 1000; // Rough estimate
-            
-            const progressInterval = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const progress = Math.min(100, (elapsed / estimatedDuration) * 100);
-                progressBar.style.width = `${progress}%`;
-            }, 100);
-            
-            // Store utterance
-            currentUtterances.push(utterance);
-            
-            // Event handlers
-            utterance.onstart = () => {
-                updateStatus(`Speaking: ${wordCount} words`);
-                isSpeaking = true;
-            };
-            
-            utterance.onend = () => {
-                clearInterval(progressInterval);
-                progressBar.style.width = '100%';
-                document.getElementById('standard-audio-status').textContent = 'Status: Finished';
-                updateStatus('Finished speaking');
-                showLoading(false);
-                showNotification('Speech generated successfully', 'success');
-                isSpeaking = false;
-                currentUtterances = [];
-            };
-            
-            utterance.onerror = (event) => {
-                clearInterval(progressInterval);
-                console.error("Speech error:", event);
-                document.getElementById('standard-audio-status').textContent = 'Status: Error';
-                updateStatus(`Error: ${event.error}`);
-                showLoading(false);
-                showNotification('Error generating speech', 'error');
-                isSpeaking = false;
-                currentUtterances = [];
-            };
-            
-            // Speak the text
-            speechSynthesis.speak(utterance);
-        }
-        
-        function generateQA() {
-            if (!speechActivated) {
-                showNotification("Please click 'Test Speech' first to activate speech synthesis", 'error');
-                return;
-            }
-            
-            const text = document.getElementById('qa-text').value.trim();
-            if (!text) {
-                showNotification('Please enter Q&A text', 'error');
-                return;
-            }
-            
-            showLoading(true, 'Processing Q&A...');
-            
-            // Stop any current speech
-            speechSynthesis.cancel();
-            currentUtterances = [];
-            
-            // Parse Q&A
-            const dialogues = parseDialogues(text, ['Q', 'A']);
-            
-            if (dialogues.length === 0) {
-                showNotification('No valid Q/A pairs found. Use format: Q: question\\nA: answer', 'error');
-                showLoading(false);
-                return;
-            }
-            
-            // Get settings
-            const speedQ = parseFloat(document.getElementById('qa-speed-q').value);
-            const speedA = parseFloat(document.getElementById('qa-speed-a').value);
-            const repeat = parseInt(document.getElementById('qa-repeat').value);
-            
-            // Get selected voices
-            const voiceQIndex = parseInt(document.getElementById('qa-voice-q').value);
-            const voiceAIndex = parseInt(document.getElementById('qa-voice-a').value);
-            const voiceQ = voices[voiceQIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0];
-            const voiceA = voices[voiceAIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0];
-            
-            // Generate combined text and speak each part
-            let combinedText = '';
-            let currentTime = 0;
-            let subtitleIndex = 1;
-            let srtContent = '';
-            
-            // Clear previous utterances
-            currentUtterances = [];
-            
-            // Create utterances for each Q&A pair, repeated
-            for (let r = 0; r < repeat; r++) {
-                dialogues.forEach(dialogue => {
-                    const isQuestion = dialogue.speaker === 'Q';
-                    const content = processText(dialogue.content);
-                    const utterance = new SpeechSynthesisUtterance(content);
-                    
-                    // Set voice and speed based on Q or A
-                    if (isQuestion) {
-                        utterance.voice = voiceQ;
-                        utterance.rate = speedQ;
-                    } else {
-                        utterance.voice = voiceA;
-                        utterance.rate = speedA;
+                
+                // Get settings
+                settings.speed = parseFloat(document.getElementById('standard-speed').value);
+                settings.volume = parseFloat(document.getElementById('standard-volume').value);
+                settings.pitch = parseFloat(document.getElementById('standard-pitch').value);
+                
+                // Get selected voice
+                const selectedOption = document.querySelector('#standard-voice-selector .voice-option.selected');
+                if (selectedOption) {
+                    const voiceIndex = parseInt(selectedOption.dataset.voiceIndex);
+                    if (voiceIndex >= 0 && voiceIndex < voices.length) {
+                        settings.voice = voices[voiceIndex];
                     }
+                }
+                
+                if (!settings.voice) {
+                    settings.voice = voices.find(v => v.lang.startsWith('en-')) || voices[0];
+                }
+                
+                settings.text = processText(text);
+                
+            } else if (mode === 'qa') {
+                text = document.getElementById('qa-text').value.trim();
+                if (!text) {
+                    showNotification('Please enter Q&A text', 'error');
+                    return;
+                }
+                
+                // Parse Q&A
+                const dialogues = parseDialogues(text, ['Q', 'A']);
+                if (dialogues.length === 0) {
+                    showNotification('No valid Q/A pairs found. Use format: Q: question\\nA: answer', 'error');
+                    return;
+                }
+                
+                // Get settings
+                settings.speedQ = parseFloat(document.getElementById('qa-speed-q').value);
+                settings.speedA = parseFloat(document.getElementById('qa-speed-a').value);
+                settings.repeat = parseInt(document.getElementById('qa-repeat').value);
+                
+                // Get voices
+                const voiceQIndex = parseInt(document.getElementById('qa-voice-q').value);
+                const voiceAIndex = parseInt(document.getElementById('qa-voice-a').value);
+                settings.voiceQ = voices[voiceQIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0];
+                settings.voiceA = voices[voiceAIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0];
+                
+                // Process dialogues
+                settings.dialogues = dialogues.map(d => ({
+                    speaker: d.speaker,
+                    content: processText(d.content),
+                    original: d.content
+                }));
+                
+            } else if (mode === 'multichar') {
+                text = document.getElementById('multichar-text').value.trim();
+                if (!text) {
+                    showNotification('Please enter dialogue text', 'error');
+                    return;
+                }
+                
+                // Get character names
+                const charNames = [
+                    document.getElementById('char1-name').value.trim().toUpperCase(),
+                    document.getElementById('char2-name').value.trim().toUpperCase(),
+                    document.getElementById('char3-name').value.trim().toUpperCase(),
+                    document.getElementById('char4-name').value.trim().toUpperCase()
+                ].filter(name => name);
+                
+                // Parse dialogues
+                const dialogues = parseDialogues(text, charNames);
+                if (dialogues.length === 0) {
+                    showNotification('No valid dialogues found. Use format: CHAR1: dialogue', 'error');
+                    return;
+                }
+                
+                // Get settings for each character
+                settings.charSettings = {};
+                settings.dialogues = [];
+                
+                charNames.forEach((charName, index) => {
+                    const speed = parseFloat(document.getElementById(`char${index + 1}-speed`).value);
+                    const voiceIndex = parseInt(document.getElementById(`char${index + 1}-voice`).value);
+                    const voice = voices[voiceIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0];
                     
-                    // Calculate timing for subtitles
-                    const startTime = currentTime;
-                    const duration = Math.max(2, content.length / 15); // Rough estimate
-                    const endTime = startTime + duration;
-                    
-                    // Add to SRT
-                    srtContent += `${subtitleIndex}\n`;
-                    srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
-                    srtContent += `${dialogue.speaker}: ${dialogue.content}\n\n`;
-                    
-                    currentTime = endTime + 0.5; // 500ms pause
-                    subtitleIndex++;
-                    
-                    // Add to combined text for display
-                    combinedText += `${dialogue.speaker}: ${content}\n\n`;
-                    
-                    // Store utterance
-                    currentUtterances.push(utterance);
+                    settings.charSettings[charName] = { speed, voice };
+                });
+                
+                // Process dialogues
+                dialogues.forEach(d => {
+                    settings.dialogues.push({
+                        speaker: d.speaker,
+                        content: processText(d.content),
+                        original: d.content
+                    });
                 });
             }
             
-            // Generate stats
-            const stats = `Q&A pairs: ${dialogues.length}\nRepeat: ${repeat}x\nQuestion speed: ${speedQ}x\nAnswer speed: ${speedA}x\nQuestion voice: ${voiceQ.name}\nAnswer voice: ${voiceA.name}`;
+            // Show loading
+            showLoading(true, `Generating ${mode} audio...`);
             
             // Update UI
-            document.getElementById('qa-stats').textContent = stats;
-            document.getElementById('qa-subtitles').textContent = srtContent;
-            document.getElementById('qa-audio-status').textContent = 'Status: Speaking...';
+            const placeholder = document.getElementById(`${mode}-audio-placeholder`);
+            const audioElement = document.getElementById(`${mode}-audio`);
+            const progressContainer = document.getElementById(`${mode}-progress-container`);
+            const controls = document.getElementById(`${mode}-controls`);
+            const progressFill = document.getElementById(`${mode}-progress-fill`);
+            const progressText = document.getElementById(`${mode}-progress-text`);
             
-            // Update progress bar
-            const progressBar = document.getElementById('qa-progress');
-            progressBar.style.width = '0%';
+            placeholder.style.display = 'none';
+            audioElement.style.display = 'none';
+            progressContainer.style.display = 'block';
+            controls.style.display = 'none';
             
-            // Start progress tracking
-            let startTime = Date.now();
-            const estimatedDuration = (combinedText.length / 15) * 1000;
+            // Reset progress
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
             
-            const progressInterval = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const progress = Math.min(100, (elapsed / estimatedDuration) * 100);
-                progressBar.style.width = `${progress}%`;
-            }, 100);
+            try {
+                // Start recording audio
+                await startAudioRecording();
+                
+                // Generate speech based on mode
+                if (mode === 'standard') {
+                    await generateStandardAudio(settings, progressFill, progressText);
+                } else if (mode === 'qa') {
+                    await generateQAAudio(settings, progressFill, progressText);
+                } else if (mode === 'multichar') {
+                    await generateMultiCharAudio(settings, progressFill, progressText);
+                }
+                
+                // Stop recording
+                const audioBlob = await stopAudioRecording();
+                
+                if (audioBlob) {
+                    // Create audio URL
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    
+                    // Update audio element
+                    audioElement.src = audioUrl;
+                    audioElement.style.display = 'block';
+                    controls.style.display = 'flex';
+                    progressContainer.style.display = 'none';
+                    
+                    // Store blob for download
+                    window[`${mode}AudioBlob`] = audioBlob;
+                    
+                    // Show download button
+                    document.getElementById(`download-${mode}-audio`).style.display = 'inline-block';
+                    
+                    // Generate stats and subtitles
+                    generateStatsAndSubtitles(mode, text, settings);
+                    
+                    showNotification(`${mode} audio generated successfully`, 'success');
+                    updateStatus(`${mode} audio ready to play`);
+                    
+                    // Auto-play the audio
+                    setTimeout(() => {
+                        audioElement.play().catch(e => {
+                            console.log("Auto-play blocked, user needs to interact");
+                        });
+                    }, 500);
+                }
+                
+            } catch (error) {
+                console.error(`Error generating ${mode} audio:`, error);
+                showNotification(`Error generating audio: ${error.message}`, 'error');
+                
+                // Reset UI
+                placeholder.style.display = 'block';
+                progressContainer.style.display = 'none';
+                audioElement.style.display = 'none';
+                controls.style.display = 'none';
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        async function startAudioRecording() {
+            if (!('MediaRecorder' in window)) {
+                throw new Error('Audio recording not supported in this browser');
+            }
             
-            // Start speaking
-            updateStatus(`Speaking Q&A: ${dialogues.length} pairs x${repeat}`);
-            
-            // Speak all utterances
-            let currentIndex = 0;
-            
-            function speakNext() {
-                if (currentIndex < currentUtterances.length) {
-                    const utterance = currentUtterances[currentIndex];
+            try {
+                // Create audio context
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Create destination node for recording
+                const destination = audioContext.createMediaStreamDestination();
+                
+                // Get user media (microphone)
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // Create media recorder
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                // Collect audio data
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                // Start recording
+                mediaRecorder.start();
+                
+                return true;
+            } catch (error) {
+                console.error("Audio recording error:", error);
+                throw new Error('Could not start audio recording');
+            }
+        }
+        
+        async function stopAudioRecording() {
+            return new Promise((resolve) => {
+                if (!mediaRecorder) {
+                    resolve(null);
+                    return;
+                }
+                
+                mediaRecorder.onstop = () => {
+                    // Create blob from chunks
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    
+                    // Stop all tracks
+                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                    
+                    // Reset
+                    mediaRecorder = null;
+                    audioChunks = [];
+                    
+                    resolve(audioBlob);
+                };
+                
+                // Stop recording
+                mediaRecorder.stop();
+            });
+        }
+        
+        async function generateStandardAudio(settings, progressFill, progressText) {
+            return new Promise((resolve) => {
+                const utterance = new SpeechSynthesisUtterance(settings.text);
+                
+                utterance.voice = settings.voice;
+                utterance.rate = settings.speed;
+                utterance.volume = settings.volume;
+                utterance.pitch = settings.pitch;
+                
+                // Track progress
+                let startTime = Date.now();
+                const estimatedDuration = (settings.text.length / 15) * 1000;
+                
+                const progressInterval = setInterval(() => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(99, (elapsed / estimatedDuration) * 100);
+                    progressFill.style.width = `${progress}%`;
+                    progressText.textContent = `${Math.floor(progress)}%`;
+                }, 100);
+                
+                utterance.onend = () => {
+                    clearInterval(progressInterval);
+                    progressFill.style.width = '100%';
+                    progressText.textContent = '100%';
+                    setTimeout(resolve, 500);
+                };
+                
+                utterance.onerror = () => {
+                    clearInterval(progressInterval);
+                    resolve();
+                };
+                
+                // Speak
+                speechSynthesis.speak(utterance);
+            });
+        }
+        
+        async function generateQAAudio(settings, progressFill, progressText) {
+            return new Promise((resolve) => {
+                const totalParts = settings.dialogues.length * settings.repeat;
+                let completedParts = 0;
+                
+                function speakNext() {
+                    if (completedParts >= totalParts) {
+                        progressFill.style.width = '100%';
+                        progressText.textContent = '100%';
+                        setTimeout(resolve, 500);
+                        return;
+                    }
+                    
+                    const dialogueIndex = completedParts % settings.dialogues.length;
+                    const dialogue = settings.dialogues[dialogueIndex];
+                    const isQuestion = dialogue.speaker === 'Q';
+                    
+                    const utterance = new SpeechSynthesisUtterance(dialogue.content);
+                    utterance.voice = isQuestion ? settings.voiceQ : settings.voiceA;
+                    utterance.rate = isQuestion ? settings.speedQ : settings.speedA;
                     
                     utterance.onend = () => {
-                        currentIndex++;
-                        speakNext();
+                        completedParts++;
+                        const progress = (completedParts / totalParts) * 100;
+                        progressFill.style.width = `${progress}%`;
+                        progressText.textContent = `${Math.floor(progress)}%`;
+                        
+                        // Small pause between utterances
+                        setTimeout(speakNext, 300);
                     };
                     
                     utterance.onerror = () => {
-                        currentIndex++;
-                        speakNext();
+                        completedParts++;
+                        const progress = (completedParts / totalParts) * 100;
+                        progressFill.style.width = `${progress}%`;
+                        progressText.textContent = `${Math.floor(progress)}%`;
+                        setTimeout(speakNext, 300);
                     };
                     
                     speechSynthesis.speak(utterance);
-                } else {
-                    // All utterances complete
-                    clearInterval(progressInterval);
-                    progressBar.style.width = '100%';
-                    document.getElementById('qa-audio-status').textContent = 'Status: Finished';
-                    updateStatus('Finished Q&A');
-                    showLoading(false);
-                    showNotification('Q&A audio generated', 'success');
-                    isSpeaking = false;
-                    currentUtterances = [];
                 }
-            }
-            
-            isSpeaking = true;
-            speakNext();
+                
+                // Start speaking
+                speakNext();
+            });
         }
         
-        function generateMultiChar() {
-            if (!speechActivated) {
-                showNotification("Please click 'Test Speech' first to activate speech synthesis", 'error');
-                return;
+        async function generateMultiCharAudio(settings, progressFill, progressText) {
+            return new Promise((resolve) => {
+                const totalDialogues = settings.dialogues.length;
+                let completedDialogues = 0;
+                
+                function speakNext() {
+                    if (completedDialogues >= totalDialogues) {
+                        progressFill.style.width = '100%';
+                        progressText.textContent = '100%';
+                        setTimeout(resolve, 500);
+                        return;
+                    }
+                    
+                    const dialogue = settings.dialogues[completedDialogues];
+                    const charSettings = settings.charSettings[dialogue.speaker] || { speed: 1.0, voice: voices[0] };
+                    
+                    const utterance = new SpeechSynthesisUtterance(dialogue.content);
+                    utterance.voice = charSettings.voice;
+                    utterance.rate = charSettings.speed;
+                    
+                    utterance.onend = () => {
+                        completedDialogues++;
+                        const progress = (completedDialogues / totalDialogues) * 100;
+                        progressFill.style.width = `${progress}%`;
+                        progressText.textContent = `${Math.floor(progress)}%`;
+                        
+                        // Small pause between utterances
+                        setTimeout(speakNext, 300);
+                    };
+                    
+                    utterance.onerror = () => {
+                        completedDialogues++;
+                        const progress = (completedDialogues / totalDialogues) * 100;
+                        progressFill.style.width = `${progress}%`;
+                        progressText.textContent = `${Math.floor(progress)}%`;
+                        setTimeout(speakNext, 300);
+                    };
+                    
+                    speechSynthesis.speak(utterance);
+                }
+                
+                // Start speaking
+                speakNext();
+            });
+        }
+        
+        function generateStatsAndSubtitles(mode, originalText, settings) {
+            // Generate stats
+            const wordCount = originalText.split(/\s+/).filter(w => w.length > 0).length;
+            const charCount = originalText.length;
+            
+            let stats = '';
+            let subtitles = '';
+            
+            if (mode === 'standard') {
+                stats = `Text processed: ${wordCount} words, ${charCount} characters\n`;
+                stats += `Speed: ${settings.speed}x, Volume: ${settings.volume}, Pitch: ${settings.pitch}\n`;
+                stats += `Voice: ${settings.voice?.name || 'Default'}`;
+                
+                subtitles = generateSubtitles(originalText);
+                
+            } else if (mode === 'qa') {
+                stats = `Q&A pairs: ${settings.dialogues.length}\n`;
+                stats += `Repeat: ${settings.repeat}x\n`;
+                stats += `Question speed: ${settings.speedQ}x, Answer speed: ${settings.speedA}x\n`;
+                stats += `Question voice: ${settings.voiceQ.name}\n`;
+                stats += `Answer voice: ${settings.voiceA.name}`;
+                
+                subtitles = generateQASubtitles(settings.dialogues, settings.repeat);
+                
+            } else if (mode === 'multichar') {
+                stats = `Characters: ${settings.dialogues.length} lines\n`;
+                stats += `Characters used: ${Object.keys(settings.charSettings).join(', ')}\n`;
+                stats += `Total words: ${wordCount}`;
+                
+                subtitles = generateMultiCharSubtitles(settings.dialogues);
             }
             
-            const text = document.getElementById('multichar-text').value.trim();
-            if (!text) {
-                showNotification('Please enter dialogue text', 'error');
-                return;
-            }
+            // Update UI
+            document.getElementById(`${mode}-stats`).textContent = stats;
+            document.getElementById(`${mode}-subtitles`).textContent = subtitles;
+        }
+        
+        function generateSubtitles(text) {
+            const lines = text.split('\n').filter(line => line.trim());
+            let srtContent = '';
+            let currentTime = 0;
             
-            showLoading(true, 'Processing multi-character dialogue...');
+            lines.forEach((line, index) => {
+                const startTime = currentTime;
+                const duration = Math.max(2, line.length / 10);
+                const endTime = startTime + duration;
+                
+                srtContent += `${index + 1}\n`;
+                srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
+                srtContent += `${line.trim()}\n\n`;
+                
+                currentTime = endTime + 0.5;
+            });
             
-            // Stop any current speech
-            speechSynthesis.cancel();
-            currentUtterances = [];
-            
-            // Parse dialogues
-            const char1Name = document.getElementById('char1-name').value.trim().toUpperCase();
-            const char2Name = document.getElementById('char2-name').value.trim().toUpperCase();
-            const char3Name = document.getElementById('char3-name').value.trim().toUpperCase();
-            const char4Name = document.getElementById('char4-name').value.trim().toUpperCase();
-            
-            const prefixes = [char1Name, char2Name, char3Name, char4Name].filter(name => name);
-            const dialogues = parseDialogues(text, prefixes);
-            
-            if (dialogues.length === 0) {
-                showNotification('No valid dialogues found. Use format: CHAR1: dialogue', 'error');
-                showLoading(false);
-                return;
-            }
-            
-            // Get settings for each character
-            const charSettings = {};
-            const charVoices = {};
-            
-            if (char1Name) {
-                const voiceIndex = parseInt(document.getElementById('char1-voice').value);
-                charSettings[char1Name] = {
-                    speed: parseFloat(document.getElementById('char1-speed').value),
-                    voice: voices[voiceIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0]
-                };
-            }
-            
-            if (char2Name) {
-                const voiceIndex = parseInt(document.getElementById('char2-voice').value);
-                charSettings[char2Name] = {
-                    speed: parseFloat(document.getElementById('char2-speed').value),
-                    voice: voices[voiceIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0]
-                };
-            }
-            
-            if (char3Name) {
-                const voiceIndex = parseInt(document.getElementById('char3-voice').value);
-                charSettings[char3Name] = {
-                    speed: parseFloat(document.getElementById('char3-speed').value),
-                    voice: voices[voiceIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0]
-                };
-            }
-            
-            if (char4Name) {
-                const voiceIndex = parseInt(document.getElementById('char4-voice').value);
-                charSettings[char4Name] = {
-                    speed: parseFloat(document.getElementById('char4-speed').value),
-                    voice: voices[voiceIndex] || voices.find(v => v.lang.startsWith('en-')) || voices[0]
-                };
-            }
-            
-            // Generate utterances and subtitles
-            let combinedText = '';
+            return srtContent;
+        }
+        
+        function generateQASubtitles(dialogues, repeat) {
             let srtContent = '';
             let currentTime = 0;
             let subtitleIndex = 1;
             
-            dialogues.forEach((dialogue, index) => {
-                const content = processText(dialogue.content);
-                const settings = charSettings[dialogue.speaker] || { speed: 1.0, voice: voices[0] };
-                
-                const utterance = new SpeechSynthesisUtterance(content);
-                utterance.voice = settings.voice;
-                utterance.rate = settings.speed;
-                
-                // Calculate timing for subtitles
-                const startTime = currentTime;
-                const duration = Math.max(2, content.length / (15 * settings.speed));
-                const endTime = startTime + duration;
-                
-                // Add to SRT
-                srtContent += `${subtitleIndex}\n`;
-                srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
-                srtContent += `${dialogue.speaker}: ${dialogue.content}\n\n`;
-                
-                currentTime = endTime + 0.5; // 500ms pause
-                subtitleIndex++;
-                
-                // Add to combined text
-                combinedText += `${dialogue.speaker}: ${content}\n\n`;
-                
-                // Store utterance
-                currentUtterances.push(utterance);
-            });
-            
-            // Generate stats
-            const stats = `Characters: ${dialogues.length} lines\nCharacters used: ${Object.keys(charSettings).join(', ')}\nTotal duration: ${currentTime.toFixed(1)} seconds`;
-            
-            // Update UI
-            document.getElementById('multichar-stats').textContent = stats;
-            document.getElementById('multichar-subtitles').textContent = srtContent;
-            document.getElementById('multichar-audio-status').textContent = 'Status: Speaking...';
-            
-            // Update progress bar
-            const progressBar = document.getElementById('multichar-progress');
-            progressBar.style.width = '0%';
-            
-            // Start progress tracking
-            let startTime = Date.now();
-            const estimatedDuration = currentTime * 1000;
-            
-            const progressInterval = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const progress = Math.min(100, (elapsed / estimatedDuration) * 100);
-                progressBar.style.width = `${progress}%`;
-            }, 100);
-            
-            // Start speaking
-            updateStatus(`Speaking multi-character: ${dialogues.length} lines`);
-            
-            // Speak all utterances
-            let currentIndex = 0;
-            
-            function speakNext() {
-                if (currentIndex < currentUtterances.length) {
-                    const utterance = currentUtterances[currentIndex];
+            for (let r = 0; r < repeat; r++) {
+                dialogues.forEach(dialogue => {
+                    const startTime = currentTime;
+                    const duration = Math.max(2, dialogue.content.length / 10);
+                    const endTime = startTime + duration;
                     
-                    utterance.onend = () => {
-                        currentIndex++;
-                        speakNext();
-                    };
+                    srtContent += `${subtitleIndex}\n`;
+                    srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
+                    srtContent += `${dialogue.speaker}: ${dialogue.original}\n\n`;
                     
-                    utterance.onerror = () => {
-                        currentIndex++;
-                        speakNext();
-                    };
-                    
-                    speechSynthesis.speak(utterance);
-                } else {
-                    // All utterances complete
-                    clearInterval(progressInterval);
-                    progressBar.style.width = '100%';
-                    document.getElementById('multichar-audio-status').textContent = 'Status: Finished';
-                    updateStatus('Finished multi-character dialogue');
-                    showLoading(false);
-                    showNotification('Multi-character audio generated', 'success');
-                    isSpeaking = false;
-                    currentUtterances = [];
-                }
+                    currentTime = endTime + 0.5;
+                    subtitleIndex++;
+                });
             }
             
-            isSpeaking = true;
-            speakNext();
+            return srtContent;
+        }
+        
+        function generateMultiCharSubtitles(dialogues) {
+            let srtContent = '';
+            let currentTime = 0;
+            
+            dialogues.forEach((dialogue, index) => {
+                const startTime = currentTime;
+                const duration = Math.max(2, dialogue.content.length / 10);
+                const endTime = startTime + duration;
+                
+                srtContent += `${index + 1}\n`;
+                srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
+                srtContent += `${dialogue.speaker}: ${dialogue.original}\n\n`;
+                
+                currentTime = endTime + 0.5;
+            });
+            
+            return srtContent;
         }
         
         function formatTime(seconds) {
@@ -1645,45 +1861,6 @@ CHAR2: I'm fine, thanks!
             const millis = Math.floor((seconds % 1) * 1000);
             
             return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')},${millis.toString().padStart(3, '0')}`;
-        }
-        
-        function generateSubtitles(text, secondsPerLine = 3) {
-            const lines = text.split('\n').filter(line => line.trim());
-            let srtContent = '';
-            let currentTime = 0;
-            
-            lines.forEach((line, index) => {
-                const startTime = currentTime;
-                const endTime = startTime + secondsPerLine;
-                
-                srtContent += `${index + 1}\n`;
-                srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
-                srtContent += `${line.trim()}\n\n`;
-                
-                currentTime = endTime + 0.5; // 500ms pause between lines
-            });
-            
-            return srtContent;
-        }
-        
-        function stopAllSpeech() {
-            speechSynthesis.cancel();
-            currentUtterances = [];
-            isSpeaking = false;
-            
-            // Reset progress bars
-            document.getElementById('standard-progress').style.width = '0%';
-            document.getElementById('qa-progress').style.width = '0%';
-            document.getElementById('multichar-progress').style.width = '0%';
-            
-            // Reset status
-            document.getElementById('standard-audio-status').textContent = 'Status: Stopped';
-            document.getElementById('qa-audio-status').textContent = 'Status: Stopped';
-            document.getElementById('multichar-audio-status').textContent = 'Status: Stopped';
-            
-            updateStatus('Speech stopped');
-            showNotification('Speech stopped', 'info');
-            showLoading(false);
         }
         
         function downloadSRT(mode) {
@@ -1706,6 +1883,25 @@ CHAR2: I'm fine, thanks!
             URL.revokeObjectURL(url);
             
             showNotification('SRT file downloaded', 'success');
+        }
+        
+        function downloadAudio(mode) {
+            const audioBlob = window[`${mode}AudioBlob`];
+            if (!audioBlob) {
+                showNotification('No audio to download', 'error');
+                return;
+            }
+            
+            const url = URL.createObjectURL(audioBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${mode}-audio.webm`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Audio file downloaded', 'success');
         }
         
         // Initialize when page loads
